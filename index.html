@@ -525,7 +525,7 @@
 
 <script>
     // ============================================================
-    // 1. QUESTION BANK — 62 questions (includes all new ones)
+    // 1. QUESTION BANK — 62 questions
     // ============================================================
     const QUESTIONS = [{
         id: 1,
@@ -879,7 +879,7 @@
         explanation: 'Phishing is a social engineering attack where criminals impersonate legitimate entities to trick users into revealing credentials, credit card numbers, or other sensitive information.'
     },
     // ============================================================
-    //  NEW QUESTIONS ADDED FROM THE ADDITIONAL IMAGES (Q51 - Q62)
+    //  NEW QUESTIONS (Q51 - Q62)
     // ============================================================
     {
         id: 51,
@@ -968,13 +968,15 @@
     let userAnswers = new Array(totalQ).fill(null);
     let questionLocked = new Array(totalQ).fill(false);
     let timerInterval = null;
-    let timeLeft = totalQ * 60; // Dynamic timer: 1 minute per question
+    let timeLeft = totalQ * 60;
     let examSubmitted = false;
     let appMode = 'training';
 
-    // Update welcome subhead dynamically
     document.getElementById('welcomeSubhead').textContent = `${totalQ} questions · ${totalQ} minutes · Certiport Level 3 style`;
 
+    // ============================================================
+    // 3. DOM REFERENCES — FIXED: Added quizArea
+    // ============================================================
     const DOM = {
         welcome: document.getElementById('welcomeScreen'),
         examArea: document.getElementById('examArea'),
@@ -1000,12 +1002,13 @@
         startBtn: document.getElementById('startBtn'),
         modeTraining: document.getElementById('modeTraining'),
         modeTest: document.getElementById('modeTest'),
+        quizArea: document.getElementById('quizArea'), // ⬅️ FIXED: Added missing element
     };
 
     let selectedMode = null;
 
     // ============================================================
-    // 3. MODE SELECTION
+    // 4. MODE SELECTION
     // ============================================================
     document.querySelectorAll('.mode-card').forEach(card => {
         card.addEventListener('click', () => {
@@ -1028,7 +1031,7 @@
     });
 
     // ============================================================
-    // 4. RENDER FUNCTIONS
+    // 5. RENDER FUNCTIONS
     // ============================================================
     function renderQuestion() {
         const q = QUESTIONS[currentIndex];
@@ -1163,17 +1166,20 @@
         updateStats();
     }
 
+    // ============================================================
+    // 6. UPDATE STATS — Submit button always enabled
+    // ============================================================
     function updateStats() {
         const answered = userAnswers.filter(a => a !== null && a.length > 0).length;
         DOM.answered.textContent = `${answered} answered`;
         DOM.counter.textContent = `Question ${currentIndex+1} of ${totalQ}`;
         const pct = ((currentIndex + 1) / totalQ) * 100;
         DOM.progress.style.width = `${Math.min(pct, 100)}%`;
-        DOM.submitBtn.disabled = (answered < totalQ);
+        DOM.submitBtn.disabled = false;
     }
 
     // ============================================================
-    // 5. NAVIGATION
+    // 7. NAVIGATION
     // ============================================================
     function goTo(index) {
         if (index < 0) index = 0;
@@ -1193,7 +1199,7 @@
     });
 
     // ============================================================
-    // 6. TIMER
+    // 8. TIMER
     // ============================================================
     function updateTimerDisplay() {
         const mins = Math.floor(timeLeft / 60);
@@ -1218,20 +1224,21 @@
     }
 
     // ============================================================
-    // 7. SUBMIT & RESULTS
+    // 9. SUBMIT & RESULTS
     // ============================================================
     function submitExam() {
         if (examSubmitted) return;
         const answered = userAnswers.filter(a => a !== null && a.length > 0).length;
         if (answered < totalQ && timeLeft > 0) {
-            if (!confirm(`You have answered ${answered} out of ${totalQ}. Are you sure you want to submit?`)) {
+            if (!confirm(`You have answered ${answered} out of ${totalQ} questions.\n\nAre you sure you want to submit your exam?`)) {
                 return;
             }
         }
         examSubmitted = true;
         clearInterval(timerInterval);
         timerInterval = null;
-        DOM.quizArea.querySelector('.nav-area').style.display = 'none';
+        const navArea = DOM.quizArea.querySelector('.nav-area');
+        if (navArea) navArea.style.display = 'none';
         DOM.examArea.classList.add('hidden');
         DOM.results.classList.remove('hidden');
         showResults();
@@ -1282,17 +1289,16 @@
     }
 
     // ============================================================
-    // 8. RESTART
+    // 10. RESTART
     // ============================================================
     DOM.restartBtn.addEventListener('click', () => {
         location.reload();
     });
 
     // ============================================================
-    // 9. INIT
+    // 11. INIT
     // ============================================================
     function initExam() {
-        // Optional: Shuffle questions here if you want
         QUESTIONS.forEach((q, i) => q.id = i + 1);
         renderQuestion();
         updateTimerDisplay();

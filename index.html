@@ -884,12 +884,12 @@
     // ============================================================
     const totalQ = QUESTIONS.length;
     let currentIndex = 0;
-    let userAnswers = new Array(totalQ).fill(null); // stores array of selected indices
+    let userAnswers = new Array(totalQ).fill(null);
+    let questionLocked = new Array(totalQ).fill(false); // NEW: tracks if question is locked in training mode
     let timerInterval = null;
     let timeLeft = 50 * 60;
     let examSubmitted = false;
-    let appMode = 'training'; // 'training' or 'test'
-    let questionLocked = false; // training mode: locked after answering
+    let appMode = 'training';
 
     const DOM = {
         welcome: document.getElementById('welcomeScreen'),
@@ -957,7 +957,8 @@
         DOM.qText.textContent = `${currentIndex+1}. ${q.question}`;
 
         const saved = userAnswers[currentIndex] || [];
-        const isLocked = (appMode === 'training' && saved.length > 0);
+        // Use questionLocked array instead of just saved.length > 0
+        const isLocked = (appMode === 'training' && questionLocked[currentIndex] === true);
 
         let html = '';
         q.options.forEach((opt, idx) => {
@@ -966,15 +967,13 @@
             const nameAttr = `q${currentIndex}`;
             const disabledAttr = isLocked ? 'disabled' : '';
             let extraClass = '';
-            // In training mode, if locked, highlight correct/wrong
             if (isLocked) {
                 const isCorrect = q.answer.includes(idx);
                 const isUserSelected = saved.includes(idx);
                 if (isUserSelected && !isCorrect) extraClass = 'wrong-answer';
                 else if (isCorrect) extraClass = 'correct-answer';
-                else extraClass = 'disabled-opt';
+                extraClass += ' disabled-opt';
             }
-            if (isLocked) extraClass += ' disabled-opt';
             html += `
                 <div class="option-item ${extraClass}" data-idx="${idx}">
                     <input type="${inputType}" name="${nameAttr}" value="${idx}" ${checked} ${disabledAttr} />
@@ -1017,20 +1016,46 @@
         updateStats();
     }
 
+    // --- FIXED: Training Mode Selection Logic ---
     function handleTrainingSelect(selectedIdx, q) {
-        // Mark the answer
         let current = userAnswers[currentIndex] || [];
+
+        // Single or True/False: lock immediately after selecting 1
         if (q.type === 'single' || q.type === 'tf') {
-            current = [selectedIdx];
-        } else {
-            if (current.includes(selectedIdx)) {
-                current = current.filter(v => v !== selectedIdx);
-            } else {
-                current.push(selectedIdx);
+            // If clicking the same option, deselect? In radio, usually it stays selected.
+            // But to allow unselect, we check if already selected.
+            if (current.length === 1 && current[0] === selectedIdx) {
+                // Deselect
+                userAnswers[currentIndex] = [];
+                questionLocked[currentIndex] = false;
+                renderQuestion();
+                updateStats();
+                return;
             }
+            userAnswers[currentIndex] = [selectedIdx];
+            questionLocked[currentIndex] = true; // Lock immediately
+            renderQuestion();
+            updateStats();
+            return;
+        }
+
+        // MULTI-SELECT: only lock when required count is reached
+        if (current.includes(selectedIdx)) {
+            current = current.filter(v => v !== selectedIdx);
+        } else {
+            current.push(selectedIdx);
         }
         userAnswers[currentIndex] = current;
-        // Lock and re-render
+
+        // Check if the required count is met. If yes, LOCK the question.
+        if (current.length === q.answer.length) {
+            questionLocked[currentIndex] = true;
+        } else {
+            // Important: If they haven't reached the count yet, ensure it is UNLOCKED
+            // so they can keep selecting/deselecting.
+            questionLocked[currentIndex] = false;
+        }
+
         renderQuestion();
         updateStats();
     }
@@ -1196,7 +1221,7 @@
     // 9. INIT
     // ============================================================
     function initExam() {
-        // Shuffle questions (optional) – uncomment if desired
+        // Shuffle questions (optional – uncomment if desired)
         // for (let i = QUESTIONS.length - 1; i > 0; i--) {
         //     const j = Math.floor(Math.random() * (i + 1));
         //     [QUESTIONS[i], QUESTIONS[j]] = [QUESTIONS[j], QUESTIONS[i]];

@@ -452,7 +452,7 @@
     <!-- ===================== WELCOME SCREEN ===================== -->
     <div id="welcomeScreen">
         <h1>📘 GS6 Practice Exam</h1>
-        <p class="subhead">50 questions · 50 minutes · Certiport Level 3 style</p>
+        <p class="subhead" id="welcomeSubhead">Loading questions...</p>
 
         <div class="mode-grid">
             <div class="mode-card" data-mode="training" id="modeTraining">
@@ -478,12 +478,12 @@
                 <h2>📋 Practice</h2>
                 <span class="mode-badge" id="modeBadge">Training</span>
             </div>
-            <span class="timer" id="timerDisplay">50:00</span>
+            <span class="timer" id="timerDisplay">00:00</span>
         </div>
 
         <!-- Progress -->
         <div class="progress-area">
-            <span id="questionCounter">Question 1 of 50</span>
+            <span id="questionCounter">Question 1 of 62</span>
             <span id="answeredCounter">0 answered</span>
         </div>
         <div class="progress-bar">
@@ -515,7 +515,7 @@
         <div class="result-summary">
             <h2>✅ Exam Complete</h2>
             <div class="score" id="finalScore">0%</div>
-            <div class="sub" id="finalDetail">0 / 50 correct</div>
+            <div class="sub" id="finalDetail">0 / 0 correct</div>
             <br />
             <button id="restartBtn" class="btn-primary">🔄 Back to Home</button>
         </div>
@@ -525,7 +525,7 @@
 
 <script>
     // ============================================================
-    // 1. QUESTION BANK — 50 questions with explanations
+    // 1. QUESTION BANK — 62 questions (includes all new ones)
     // ============================================================
     const QUESTIONS = [{
         id: 1,
@@ -877,6 +877,87 @@
         options: ['A type of fishing game', 'A method to improve internet speed', 'A fraudulent attempt to obtain sensitive data', 'A hardware port on a computer'],
         answer: [2],
         explanation: 'Phishing is a social engineering attack where criminals impersonate legitimate entities to trick users into revealing credentials, credit card numbers, or other sensitive information.'
+    },
+    // ============================================================
+    //  NEW QUESTIONS ADDED FROM THE ADDITIONAL IMAGES (Q51 - Q62)
+    // ============================================================
+    {
+        id: 51,
+        type: 'multi',
+        question: 'You are conducting online research. You find a selection of videos that appear to support your hypothesis. You need to determine whether a video has been altered to change the original message. Which two methods of audio editing would indicate that the video has been altered to change the message? (Choose 2.)',
+        options: ['Original audio replaced by a music soundtrack', 'Closed captions added to the original audio', 'Voice-over identifying the cameraperson added to the end', 'Words have been rearranged and inserted'],
+        answer: [0, 3],
+        explanation: 'Replacing original audio with music (A) removes original context, and rearranging/inserting words (D) changes the spoken message. Adding captions (B) or crediting crew (C) does not alter the core message.'
+    }, {
+        id: 52,
+        type: 'single',
+        question: 'You need to find drivers for a Windows 10 laptop. Device Manager shows "unknown device" for several components. What should you do?',
+        options: ['Restart the computer and use the Windows 10 repair tool', 'From Device Manager, scan for hardware changes', 'Purchase device driver software from the store where the computer was purchased', 'Use the model number of the machine to locate the Drivers page on the manufacturer\'s website'],
+        answer: [3],
+        explanation: 'The correct approach is to use the laptop\'s model number to find official drivers on the manufacturer\'s support website. Restarting (A) or scanning (B) won\'t install missing drivers, and purchasing (C) from a random store is risky.'
+    }, {
+        id: 53,
+        type: 'tf',
+        question: 'Staying logged into websites contributes to maximizing your online privacy.',
+        options: ['True', 'False'],
+        answer: [1],
+        explanation: 'No. Staying logged in increases tracking and session hijacking risks. You should log out to improve privacy.'
+    }, {
+        id: 54,
+        type: 'tf',
+        question: 'Deleting cookies after using the browser contributes to maximizing your online privacy.',
+        options: ['True', 'False'],
+        answer: [0],
+        explanation: 'Yes. Deleting cookies removes tracking data and login sessions stored locally, enhancing privacy.'
+    }, {
+        id: 55,
+        type: 'tf',
+        question: 'Using the same password for multiple accounts contributes to maximizing your online privacy.',
+        options: ['True', 'False'],
+        answer: [1],
+        explanation: 'No. Using the same password is a security risk; if one account is breached, all accounts are compromised. It does not help privacy.'
+    }, {
+        id: 56,
+        type: 'tf',
+        question: 'Using Private Browsing mode maintains complete anonymity online.',
+        options: ['True', 'False'],
+        answer: [1],
+        explanation: 'No. Private Browsing only hides history locally. Your IP address, ISP, and websites still track you. It does not provide anonymity.'
+    }, {
+        id: 57,
+        type: 'multi',
+        question: 'You are starting a home bakery business. You plan to create a website on which customers can place pickup and delivery orders. For which two reasons should you create a prototype of your order form? (Choose 2.)',
+        options: ['To enable customers to place orders before you launch the website', 'To reveal flaws in your design', 'To test whether the solution will work', 'To advertise your business'],
+        answer: [1, 2],
+        explanation: 'Prototyping is used to reveal design flaws (B) and test functionality (C) before launch. It is not for taking orders early (A) or advertising (D).'
+    }, {
+        id: 58,
+        type: 'tf',
+        question: 'Checking Task Manager for resource usage is the appropriate step for a computer screen that turns white with an error message.',
+        options: ['True', 'False'],
+        answer: [0],
+        explanation: 'True. Task Manager allows you to see if an application is frozen or consuming excessive resources, which often causes white screen errors.'
+    }, {
+        id: 59,
+        type: 'tf',
+        question: 'Checking the network connection is the appropriate step for Windows loading slowly while searching for information on the internet.',
+        options: ['True', 'False'],
+        answer: [0],
+        explanation: 'True. Slow internet browsing is typically caused by network connectivity issues, so checking the network connection is the correct step.'
+    }, {
+        id: 60,
+        type: 'tf',
+        question: 'Checking application permissions is the appropriate step for a smartphone camera shutter noise when you are not taking pictures.',
+        options: ['True', 'False'],
+        answer: [0],
+        explanation: 'True. A camera app or malware might be using the camera in the background; checking app permissions helps identify unauthorized access.'
+    }, {
+        id: 61,
+        type: 'tf',
+        question: 'Checking the hard disk drive for a worn disk head is the appropriate step for a rhythmic clicking or grinding sound on startup.',
+        options: ['True', 'False'],
+        answer: [0],
+        explanation: 'True. Rhythmic clicking or grinding sounds from a computer during startup are classic symptoms of a failing hard disk drive (worn disk head).'
     }];
 
     // ============================================================
@@ -885,11 +966,14 @@
     const totalQ = QUESTIONS.length;
     let currentIndex = 0;
     let userAnswers = new Array(totalQ).fill(null);
-    let questionLocked = new Array(totalQ).fill(false); // NEW: tracks if question is locked in training mode
+    let questionLocked = new Array(totalQ).fill(false);
     let timerInterval = null;
-    let timeLeft = 50 * 60;
+    let timeLeft = totalQ * 60; // Dynamic timer: 1 minute per question
     let examSubmitted = false;
     let appMode = 'training';
+
+    // Update welcome subhead dynamically
+    document.getElementById('welcomeSubhead').textContent = `${totalQ} questions · ${totalQ} minutes · Certiport Level 3 style`;
 
     const DOM = {
         welcome: document.getElementById('welcomeScreen'),
@@ -957,7 +1041,6 @@
         DOM.qText.textContent = `${currentIndex+1}. ${q.question}`;
 
         const saved = userAnswers[currentIndex] || [];
-        // Use questionLocked array instead of just saved.length > 0
         const isLocked = (appMode === 'training' && questionLocked[currentIndex] === true);
 
         let html = '';
@@ -983,7 +1066,6 @@
         });
         DOM.optionsContainer.innerHTML = html;
 
-        // Attach click listeners (only if not locked)
         if (!isLocked) {
             document.querySelectorAll('.option-item').forEach(div => {
                 const input = div.querySelector('input');
@@ -1000,7 +1082,6 @@
             });
         }
 
-        // Show explanation if training mode and locked
         if (appMode === 'training' && isLocked) {
             const isCorrect = saved.length === q.answer.length && saved.every(v => q.answer.includes(v));
             DOM.explanationBox.classList.remove('hidden', 'correct-box', 'wrong-box');
@@ -1016,16 +1097,11 @@
         updateStats();
     }
 
-    // --- FIXED: Training Mode Selection Logic ---
     function handleTrainingSelect(selectedIdx, q) {
         let current = userAnswers[currentIndex] || [];
 
-        // Single or True/False: lock immediately after selecting 1
         if (q.type === 'single' || q.type === 'tf') {
-            // If clicking the same option, deselect? In radio, usually it stays selected.
-            // But to allow unselect, we check if already selected.
             if (current.length === 1 && current[0] === selectedIdx) {
-                // Deselect
                 userAnswers[currentIndex] = [];
                 questionLocked[currentIndex] = false;
                 renderQuestion();
@@ -1033,13 +1109,12 @@
                 return;
             }
             userAnswers[currentIndex] = [selectedIdx];
-            questionLocked[currentIndex] = true; // Lock immediately
+            questionLocked[currentIndex] = true;
             renderQuestion();
             updateStats();
             return;
         }
 
-        // MULTI-SELECT: only lock when required count is reached
         if (current.includes(selectedIdx)) {
             current = current.filter(v => v !== selectedIdx);
         } else {
@@ -1047,12 +1122,9 @@
         }
         userAnswers[currentIndex] = current;
 
-        // Check if the required count is met. If yes, LOCK the question.
         if (current.length === q.answer.length) {
             questionLocked[currentIndex] = true;
         } else {
-            // Important: If they haven't reached the count yet, ensure it is UNLOCKED
-            // so they can keep selecting/deselecting.
             questionLocked[currentIndex] = false;
         }
 
@@ -1076,7 +1148,6 @@
             }
         }
         userAnswers[currentIndex] = current;
-        // update visual
         document.querySelectorAll('.option-item').forEach(el => {
             const cb = el.querySelector('input');
             const idx = parseInt(el.dataset.idx);
@@ -1221,11 +1292,7 @@
     // 9. INIT
     // ============================================================
     function initExam() {
-        // Shuffle questions (optional – uncomment if desired)
-        // for (let i = QUESTIONS.length - 1; i > 0; i--) {
-        //     const j = Math.floor(Math.random() * (i + 1));
-        //     [QUESTIONS[i], QUESTIONS[j]] = [QUESTIONS[j], QUESTIONS[i]];
-        // }
+        // Optional: Shuffle questions here if you want
         QUESTIONS.forEach((q, i) => q.id = i + 1);
         renderQuestion();
         updateTimerDisplay();
@@ -1233,7 +1300,7 @@
         updateStats();
     }
 
-    // Pre-select mode training by default for UI clarity
+    // Pre-select training mode by default
     DOM.modeTraining.classList.add('selected');
     selectedMode = 'training';
     DOM.startBtn.textContent = '🚀 Start Training Mode';

@@ -1,1316 +1,1140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Certiport GS6 Practice – Training & Test Modes</title>
-    <style>
-        /* --- RESET & BASE --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-            background: #f0f4fb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .app-container {
-            max-width: 820px;
-            width: 100%;
-            background: white;
-            border-radius: 32px;
-            box-shadow: 0 20px 60px rgba(0, 20, 50, 0.12);
-            padding: 30px 35px 40px;
-            transition: 0.2s;
-        }
-        .hidden {
-            display: none !important;
-        }
-
-        /* --- WELCOME SCREEN --- */
-        #welcomeScreen {
-            text-align: center;
-            padding: 20px 10px;
-        }
-        #welcomeScreen h1 {
-            font-size: 2.2rem;
-            color: #0b1b33;
-            margin-bottom: 8px;
-        }
-        #welcomeScreen .subhead {
-            color: #3d5a78;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-        }
-        .mode-grid {
-            display: flex;
-            gap: 25px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 25px 0 30px;
-        }
-        .mode-card {
-            background: #f8fafd;
-            border: 3px solid #e2e8f0;
-            border-radius: 24px;
-            padding: 30px 25px;
-            width: 240px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: center;
-        }
-        .mode-card:hover {
-            border-color: #94a3b8;
-            background: #f1f5f9;
-        }
-        .mode-card.selected {
-            border-color: #2563eb;
-            background: #eff6ff;
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
-        }
-        .mode-card .icon {
-            font-size: 2.8rem;
-            margin-bottom: 8px;
-        }
-        .mode-card h3 {
-            font-size: 1.3rem;
-            color: #0b1b33;
-        }
-        .mode-card p {
-            color: #4a5b74;
-            font-size: 0.9rem;
-            margin-top: 6px;
-        }
-        .btn-start {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 16px 60px;
-            border-radius: 60px;
-            font-size: 1.3rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.15s;
-            margin-top: 10px;
-        }
-        .btn-start:hover {
-            background: #1d4ed8;
-            transform: scale(1.02);
-        }
-        .btn-start:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* --- EXAM HEADER --- */
-        .exam-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            border-bottom: 2px solid #e9eff6;
-            padding-bottom: 18px;
-            margin-bottom: 20px;
-        }
-        .exam-header .title-area {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .exam-header .title-area h2 {
-            font-size: 1.4rem;
-            color: #0b1b33;
-        }
-        .mode-badge {
-            background: #e2e8f0;
-            padding: 4px 16px;
-            border-radius: 60px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #1e293b;
-        }
-        .mode-badge.training {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-        .mode-badge.test {
-            background: #fce7f3;
-            color: #be185d;
-        }
-        .timer {
-            background: #0b1b33;
-            color: white;
-            padding: 6px 22px;
-            border-radius: 60px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: 1px;
-        }
-        .timer.warning {
-            background: #c0392b;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-
-        /* --- PROGRESS --- */
-        .progress-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            color: #3d5a78;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #dfe8f2;
-            border-radius: 12px;
-            margin-bottom: 28px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #2563eb;
-            width: 2%;
-            border-radius: 12px;
-            transition: width 0.25s ease;
-        }
-
-        /* --- QUESTION --- */
-        .question-header {
-            font-weight: 600;
-            color: #1e3a5f;
-            font-size: 0.95rem;
-            margin-bottom: 6px;
-            letter-spacing: 0.3px;
-        }
-        .question-text {
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #0a1a2f;
-            line-height: 1.5;
-            margin-bottom: 22px;
-        }
-        .options-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .option-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            background: #f8fafd;
-            padding: 14px 18px;
-            border-radius: 14px;
-            border: 2px solid transparent;
-            transition: 0.15s;
-            cursor: pointer;
-        }
-        .option-item:hover:not(.disabled-opt) {
-            background: #edf3fa;
-            border-color: #bdd3eb;
-        }
-        .option-item.selected {
-            background: #dbeafe;
-            border-color: #2563eb;
-        }
-        .option-item.correct-answer {
-            background: #dcfce7 !important;
-            border-color: #16a34a !important;
-        }
-        .option-item.wrong-answer {
-            background: #fee2e2 !important;
-            border-color: #dc2626 !important;
-        }
-        .option-item.disabled-opt {
-            cursor: default;
-            opacity: 0.7;
-        }
-        .option-item input {
-            margin-top: 3px;
-            accent-color: #2563eb;
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-        .option-item.disabled-opt input {
-            cursor: default;
-        }
-        .option-item label {
-            flex: 1;
-            font-size: 1rem;
-            color: #1d2b41;
-            cursor: pointer;
-            line-height: 1.4;
-        }
-        .option-item.disabled-opt label {
-            cursor: default;
-        }
-
-        /* --- EXPLANATION (Training Mode) --- */
-        #explanationBox {
-            background: #f0f7ff;
-            border-radius: 16px;
-            padding: 16px 20px;
-            margin: 10px 0 20px;
-            border-left: 6px solid #2563eb;
-        }
-        #explanationBox .exp-title {
-            font-weight: 700;
-            color: #0b1b33;
-            font-size: 0.9rem;
-        }
-        #explanationBox .exp-text {
-            color: #1e3a5f;
-            margin-top: 4px;
-            font-size: 0.95rem;
-        }
-        #explanationBox.correct-box {
-            border-left-color: #16a34a;
-            background: #f0fdf4;
-        }
-        #explanationBox.wrong-box {
-            border-left-color: #dc2626;
-            background: #fef2f2;
-        }
-
-        /* --- NAVIGATION --- */
-        .nav-area {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 6px;
-        }
-        button {
-            background: white;
-            border: 2px solid #ccd9e9;
-            padding: 12px 28px;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: #1f3a5e;
-            cursor: pointer;
-            transition: 0.15s;
-            flex: 1 1 auto;
-            min-width: 100px;
-        }
-        button:hover:not(:disabled) {
-            background: #eef4fc;
-            border-color: #8aadcf;
-        }
-        button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        .btn-primary {
-            background: #2563eb;
-            border-color: #2563eb;
-            color: white;
-            flex: 0 0 auto;
-        }
-        .btn-primary:hover:not(:disabled) {
-            background: #1d4ed8;
-        }
-        .btn-submit {
-            background: #0b1b33;
-            border-color: #0b1b33;
-            color: white;
-            flex: 0 0 auto;
-        }
-        .btn-submit:hover:not(:disabled) {
-            background: #1f3a5e;
-        }
-        .btn-danger {
-            background: #dc2626;
-            border-color: #dc2626;
-            color: white;
-        }
-        .btn-danger:hover:not(:disabled) {
-            background: #b91c1c;
-        }
-
-        /* --- RESULTS --- */
-        #results {
-            margin-top: 15px;
-        }
-        .result-summary {
-            background: #f0f7ff;
-            border-radius: 24px;
-            padding: 30px 25px;
-            text-align: center;
-            margin-bottom: 30px;
-            border: 2px solid #dbeafe;
-        }
-        .result-summary h2 {
-            font-size: 2rem;
-            color: #0b1b33;
-        }
-        .result-summary .score {
-            font-size: 3.2rem;
-            font-weight: 700;
-            color: #2563eb;
-        }
-        .result-summary .sub {
-            font-size: 1rem;
-            color: #3d5a78;
-        }
-        .review-item {
-            background: #f9fbfd;
-            border-radius: 16px;
-            padding: 18px 20px;
-            margin-bottom: 14px;
-            border-left: 6px solid #2563eb;
-        }
-        .review-item.correct {
-            border-left-color: #16a34a;
-            background: #f0fdf4;
-        }
-        .review-item.wrong {
-            border-left-color: #dc2626;
-            background: #fef2f2;
-        }
-        .review-item .q {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        .review-item .your-answer {
-            font-size: 0.95rem;
-            color: #333;
-        }
-        .review-item .correct-answer {
-            font-size: 0.95rem;
-            color: #16a34a;
-            font-weight: 500;
-        }
-        .review-item .wrong-answer {
-            font-size: 0.95rem;
-            color: #dc2626;
-            font-weight: 500;
-        }
-        .review-item .exp {
-            font-size: 0.92rem;
-            color: #1e3a5f;
-            background: #eef4fc;
-            padding: 10px 14px;
-            border-radius: 10px;
-            margin-top: 8px;
-        }
-
-        @media (max-width: 550px) {
-            .app-container {
-                padding: 18px;
-            }
-            .exam-header .title-area h2 {
-                font-size: 1.1rem;
-            }
-            .timer {
-                font-size: 1.2rem;
-                padding: 4px 14px;
-            }
-            .mode-card {
-                width: 100%;
-                max-width: 280px;
-            }
-            .question-text {
-                font-size: 1rem;
-            }
-            button {
-                padding: 10px 14px;
-                font-size: 0.85rem;
-                min-width: 70px;
-            }
-            .option-item {
-                padding: 12px 14px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Certiport Practice – Complete Bank (55 Qs)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 1000px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.12);
+      overflow: hidden;
+      position: relative;
+    }
+    /* header */
+    .app-header {
+      background: #1a3a5c;
+      color: #fff;
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-header h1 { font-size: 21px; font-weight: 600; letter-spacing: 0.3px; }
+    .app-header .badge {
+      background: rgba(255,255,255,0.18);
+      padding: 4px 18px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    /* mode toggle */
+    .mode-toggle {
+      display: flex;
+      gap: 4px;
+      background: #e8ecf1;
+      padding: 4px;
+      border-radius: 40px;
+      margin: 14px 28px 0 28px;
+    }
+    .mode-toggle button {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 32px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      background: transparent;
+      color: #3a4a5a;
+    }
+    .mode-toggle button.active {
+      background: #1a3a5c;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(26,58,92,0.25);
+    }
+    .mode-toggle button:not(.active):hover { background: #d5dce6; }
+    /* progress + palette row */
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      align-items: center;
+      padding: 12px 28px 4px 28px;
+    }
+    .progress-section { flex: 2; min-width: 180px; }
+    .progress-bar-bg {
+      background: #e8ecf1;
+      border-radius: 40px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2a7de1, #1a5cb5);
+      border-radius: 40px;
+      transition: width 0.4s ease;
+    }
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #5a6a7a;
+      margin-top: 4px;
+    }
+    .palette-toggle {
+      background: #eef3f9;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a3a5c;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .palette-toggle:hover { background: #d5dce6; }
+    .question-palette {
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 28px 12px 28px;
+      background: #f8faff;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .question-palette.open { display: flex; }
+    .palette-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid #d5dce6;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2a3a4a;
+      cursor: pointer;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .palette-btn:hover { border-color: #1a3a5c; background: #eaf1fb; }
+    .palette-btn.active { border-color: #1a3a5c; background: #1a3a5c; color: #fff; }
+    .palette-btn.answered { border-color: #1a9e5a; background: #e4f5ec; }
+    .palette-btn.flagged { border-color: #f5a623; background: #fff3cd; }
+    .palette-btn.answered.flagged { border-color: #f5a623; background: #fff3cd; }
+    /* question area */
+    .question-area { padding: 20px 28px 10px 28px; }
+    .question-number {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a3a5c;
+      background: #eef3f9;
+      display: inline-block;
+      padding: 4px 16px;
+      border-radius: 40px;
+      margin-bottom: 12px;
+    }
+    .question-text {
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.6;
+      color: #1a2a3a;
+      margin-bottom: 20px;
+    }
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.15s;
+      background: #fafbfc;
+    }
+    .option-item:hover:not(.disabled) { border-color: #b0c4db; background: #f4f7fc; }
+    .option-item.selected { border-color: #1a3a5c; background: #eaf1fb; }
+    .option-item.correct { border-color: #1a9e5a; background: #e4f5ec; }
+    .option-item.wrong { border-color: #d93a4a; background: #fde8eb; }
+    .option-item.disabled { cursor: default; opacity: 0.85; }
+    .option-item .marker {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid #b8c8da;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      color: #3a4a5a;
+      background: #fff;
+      transition: 0.15s;
+    }
+    .option-item.selected .marker { border-color: #1a3a5c; background: #1a3a5c; color: #fff; }
+    .option-item.correct .marker { border-color: #1a9e5a; background: #1a9e5a; color: #fff; }
+    .option-item.wrong .marker { border-color: #d93a4a; background: #d93a4a; color: #fff; }
+    .option-item .option-text {
+      font-size: 16px;
+      line-height: 1.5;
+      color: #1a2a3a;
+      padding-top: 2px;
+    }
+    /* explanation */
+    .explanation-box {
+      background: #f0f7ff;
+      border-left: 5px solid #1a3a5c;
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin: 4px 0 16px 0;
+      display: none;
+    }
+    .explanation-box.visible { display: block; }
+    .explanation-box .exp-label { font-weight: 700; color: #1a3a5c; font-size: 14px; margin-bottom: 4px; }
+    .explanation-box .exp-text { font-size: 15px; color: #2a3a4a; line-height: 1.5; }
+    .explanation-box .exp-correct { color: #1a9e5a; font-weight: 600; }
+    .explanation-box .exp-wrong { color: #d93a4a; font-weight: 600; }
+    /* nav + flag */
+    .nav-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 28px 20px 28px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav-left { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-right { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-btn {
+      padding: 9px 22px;
+      border: none;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #e8ecf1;
+      color: #2a3a4a;
+    }
+    .nav-btn:hover:not(:disabled) { background: #d0d8e4; }
+    .nav-btn.primary { background: #1a3a5c; color: #fff; }
+    .nav-btn.primary:hover:not(:disabled) { background: #0f2a44; }
+    .nav-btn.success { background: #1a9e5a; color: #fff; }
+    .nav-btn.success:hover:not(:disabled) { background: #14804a; }
+    .nav-btn.flag-btn { background: #fff3cd; color: #8a6d00; }
+    .nav-btn.flag-btn:hover:not(:disabled) { background: #f5d742; }
+    .nav-btn.flag-btn.flagged { background: #f5a623; color: #fff; }
+    .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .timer-badge {
+      background: #1a3a5c;
+      color: #fff;
+      padding: 4px 16px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    /* results */
+    .results-container { padding: 20px 28px 30px 28px; }
+    .results-summary {
+      background: #f4f7fc;
+      border-radius: 16px;
+      padding: 24px 28px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .results-summary .score { font-size: 52px; font-weight: 700; color: #1a3a5c; }
+    .results-summary .score-label { font-size: 18px; color: #3a5a6a; }
+    .results-summary .pass-fail { font-size: 20px; font-weight: 600; margin-top: 6px; }
+    .results-summary .pass-fail.pass { color: #1a9e5a; }
+    .results-summary .pass-fail.fail { color: #d93a4a; }
+    .result-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 14px;
+      border-bottom: 1px solid #e8ecf1;
+    }
+    .result-item:last-child { border-bottom: none; }
+    .result-item .r-icon { font-size: 22px; width: 36px; text-align: center; }
+    .result-item .r-q { flex: 1; font-size: 15px; color: #1a2a3a; }
+    .result-item .r-answer { font-size: 14px; color: #3a5a6a; font-weight: 500; }
+    .result-item.correct-item { background: #f0f9f4; border-radius: 8px; }
+    .result-item.wrong-item { background: #fdf0f2; border-radius: 8px; }
+    .review-btn-wrap { text-align: center; padding: 6px 0 20px 0; }
+    .review-btn-wrap .nav-btn { min-width: 160px; }
+    /* responsive */
+    @media (max-width: 640px) {
+      .app-header { padding: 12px 16px; }
+      .app-header h1 { font-size: 17px; }
+      .mode-toggle { margin: 10px 16px 0 16px; }
+      .mode-toggle button { font-size: 13px; padding: 8px 12px; }
+      .top-bar { padding: 8px 16px 2px 16px; }
+      .question-area { padding: 14px 16px 6px 16px; }
+      .question-text { font-size: 16px; }
+      .option-item { padding: 12px 14px; }
+      .option-item .option-text { font-size: 15px; }
+      .nav-section { padding: 6px 16px 16px 16px; flex-direction: column; align-items: stretch; }
+      .nav-left, .nav-right { justify-content: center; }
+      .nav-btn { width: 100%; justify-content: center; }
+      .question-palette { padding: 8px 16px 12px 16px; }
+      .palette-btn { width: 32px; height: 32px; font-size: 11px; }
+      .results-container { padding: 14px 16px 20px 16px; }
+      .results-summary .score { font-size: 38px; }
+      .result-item { flex-wrap: wrap; }
+    }
+    .hidden { display: none !important; }
+    .scroll-area {
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .scroll-area::-webkit-scrollbar { width: 5px; }
+    .scroll-area::-webkit-scrollbar-track { background: #e8ecf1; border-radius: 8px; }
+    .scroll-area::-webkit-scrollbar-thumb { background: #b0c4db; border-radius: 8px; }
+    /* order drag */
+    .order-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fafbfc;
+      cursor: grab;
+      transition: 0.15s;
+    }
+    .order-item:hover { border-color: #b0c4db; background: #f4f7fc; }
+    .order-item .drag-handle { font-size: 18px; color: #8a9aaa; cursor: grab; }
+    .order-item .order-num { font-weight: 700; color: #1a3a5c; min-width: 28px; }
+    .order-item.dragging { opacity: 0.5; border-style: dashed; }
+    .order-item.drag-over { border-color: #1a3a5c; background: #eaf1fb; }
+  </style>
 </head>
 <body>
 
 <div class="app-container" id="app">
-    <!-- ===================== WELCOME SCREEN ===================== -->
-    <div id="welcomeScreen">
-        <h1>📘 GS6 Practice Exam</h1>
-        <p class="subhead" id="welcomeSubhead">Loading questions...</p>
+  <header class="app-header">
+    <h1>📘 Certiport Practice</h1>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <span class="badge" id="modeBadge">Training</span>
+      <span class="timer-badge" id="timerBadge">⏱ 0:00</span>
+    </div>
+  </header>
 
-        <div class="mode-grid">
-            <div class="mode-card" data-mode="training" id="modeTraining">
-                <div class="icon">📖</div>
-                <h3>Training Mode</h3>
-                <p>See answers &amp; explanations immediately after each question. Great for learning!</p>
-            </div>
-            <div class="mode-card" data-mode="test" id="modeTest">
-                <div class="icon">📝</div>
-                <h3>Test Mode</h3>
-                <p>No feedback until you submit. Simulates the real exam environment.</p>
-            </div>
-        </div>
+  <div class="mode-toggle">
+    <button id="modeTraining" class="active" data-mode="training">📖 Training</button>
+    <button id="modeTest" data-mode="test">📝 Test</button>
+  </div>
 
-        <button class="btn-start" id="startBtn" disabled>Select a mode to start</button>
+  <div class="top-bar">
+    <div class="progress-section">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="progress-text">
+        <span id="progressLabel">Question 1 of 55</span>
+        <span id="progressPercent">0%</span>
+      </div>
+    </div>
+    <button class="palette-toggle" id="paletteToggle">📋 Navigator</button>
+  </div>
+
+  <div class="question-palette" id="questionPalette"></div>
+
+  <div class="scroll-area" id="scrollArea">
+    <div class="question-area" id="questionArea"></div>
+    <div class="explanation-box" id="explanationBox">
+      <div class="exp-label">💡 Explanation</div>
+      <div class="exp-text" id="explanationText"></div>
     </div>
 
-    <!-- ===================== EXAM AREA ===================== -->
-    <div id="examArea" class="hidden">
-        <!-- Header -->
-        <div class="exam-header">
-            <div class="title-area">
-                <h2>📋 Practice</h2>
-                <span class="mode-badge" id="modeBadge">Training</span>
-            </div>
-            <span class="timer" id="timerDisplay">00:00</span>
-        </div>
-
-        <!-- Progress -->
-        <div class="progress-area">
-            <span id="questionCounter">Question 1 of 62</span>
-            <span id="answeredCounter">0 answered</span>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 2%;"></div>
-        </div>
-
-        <!-- Question -->
-        <div id="quizArea">
-            <div class="question-header" id="qType">Single Choice</div>
-            <div class="question-text" id="qText">Loading...</div>
-            <div class="options-list" id="optionsContainer"></div>
-
-            <!-- Explanation box (hidden by default) -->
-            <div id="explanationBox" class="hidden">
-                <div class="exp-title" id="expTitle">💡 Explanation</div>
-                <div class="exp-text" id="expText"></div>
-            </div>
-
-            <div class="nav-area">
-                <button id="prevBtn" disabled>◀ Previous</button>
-                <button id="nextBtn">Next ▶</button>
-                <button id="submitBtn" class="btn-submit">📤 Submit Exam</button>
-            </div>
-        </div>
+    <div class="nav-section">
+      <div class="nav-left">
+        <button class="nav-btn" id="prevBtn" disabled>◀ Prev</button>
+        <button class="nav-btn flag-btn" id="flagBtn">🚩 Flag</button>
+      </div>
+      <div class="nav-right">
+        <button class="nav-btn" id="resetBtn">⟳ Reset</button>
+        <button class="nav-btn primary" id="nextBtn">Next ▶</button>
+        <button class="nav-btn success hidden" id="submitBtn">✔ Submit</button>
+      </div>
     </div>
+  </div>
 
-    <!-- ===================== RESULTS ===================== -->
-    <div id="results" class="hidden">
-        <div class="result-summary">
-            <h2>✅ Exam Complete</h2>
-            <div class="score" id="finalScore">0%</div>
-            <div class="sub" id="finalDetail">0 / 0 correct</div>
-            <br />
-            <button id="restartBtn" class="btn-primary">🔄 Back to Home</button>
-        </div>
-        <div id="reviewContainer"></div>
-    </div>
+  <div class="results-container hidden" id="resultsContainer"></div>
 </div>
 
 <script>
-    // ============================================================
-    // 1. QUESTION BANK — 62 questions
-    // ============================================================
-    const QUESTIONS = [{
-        id: 1,
-        type: 'single',
-        question: 'Which file can you NOT send through a standard email provider (e.g., Gmail/Yahoo)?',
-        options: ['30-frame 1080p animated GIF', '5-min podcast in MP3', '1-min 8K video in AVI', '400-page plain-text file'],
-        answer: [2],
-        explanation: '8K AVI files are massive (several GB), exceeding typical 25-50MB attachment limits. GIFs, MP3s, and text files are much smaller.'
-    }, {
-        id: 2,
-        type: 'multi',
-        question: 'You receive a question about an app. Which THREE responses are appropriate? (Choose 3.)',
-        options: ['Send positive feedback with several entries', 'Provide clear and concise instructions', 'Help users find the app they are looking for', 'Share links to video content with useful steps', 'Send avatars/biographical information'],
-        answer: [1, 2, 3],
-        explanation: 'Clear instructions, navigation help, and video tutorials are supportive. Irrelevant praise (A) or avatars (E) do not help solve the user\'s issue.'
-    }, {
-        id: 3,
-        type: 'multi',
-        question: 'You receive a question about an app. Which THREE responses are appropriate? (Choose 3.)',
-        options: ['Send annotated sequential screenshots', 'Provide clear and concise instructions', 'Share links to video content with useful steps', 'Notify them it is likely user error', 'Send positive message with several emojis'],
-        answer: [0, 1, 2],
-        explanation: 'Visual aids (screenshots), clear instructions, and videos are excellent support. Blaming the user (D) or using emojis (E) is unprofessional.'
-    }, {
-        id: 4,
-        type: 'multi',
-        question: 'Select the THREE statements that best demonstrate productive group contribution. (Choose 3.)',
-        options: ['Set a series of deadlines to keep members accountable', 'Do extra work to compensate for others', 'Agree with the teacher\'s recommendations on scope', 'Save discussion of deliverable format for later', 'Agree to norms for online group conversation'],
-        answer: [0, 1, 4],
-        explanation: 'Deadlines show leadership, stepping up shows commitment, and communication norms show professionalism. Just agreeing (C) or delaying (D) are not proactive contributions.'
-    }, {
-        id: 5,
-        type: 'single',
-        question: 'Which action best demonstrates understanding of intellectual property when reusing someone\'s work?',
-        options: ['Providing attribution after adhering to fair use', 'Crediting in bibliography instead of in-text citations', 'Using small portions assuming fair use', 'Modifying slightly and presenting as your own'],
-        answer: [0],
-        explanation: 'You must evaluate fair use AND give proper credit. Simply assuming fair use (C), modifying slightly (D), or only using a bibliography (B) is insufficient or unethical.'
-    }, {
-        id: 6,
-        type: 'single',
-        question: 'Which type of software can be used online AND with iOS / Android devices?',
-        options: ['Mac OS', 'Windows 11', 'Microsoft 365', 'Chrome OS'],
-        answer: [2],
-        explanation: 'Microsoft 365 is cloud-based SaaS, accessible on iOS, Android, and web browsers. The others are operating systems (not cross-platform software).'
-    }, {
-        id: 7,
-        type: 'single',
-        question: 'A customer calls about a faulty older laptop. What is the BEST first step to understand the issue?',
-        options: ['Explain it is probably too old to fix', 'Suggest buying a new laptop', 'Ask about any error messages', 'Tell them to come in for a refund'],
-        answer: [2],
-        explanation: 'Diagnosing starts with gathering clues (error messages). Offering refunds or replacements (A, B, D) without understanding the problem is premature.'
-    }, {
-        id: 8,
-        type: 'multi',
-        question: 'Which TWO actions help protect individual and corporate intellectual property? (Choose 2.)',
-        options: ['Place a watermark on shared content', 'Create a Creative Commons license with attribution', 'Put a disclaimer stating all content is your IP', 'Create a digital portfolio accessible to everyone'],
-        answer: [0, 1],
-        explanation: 'Watermarks deter theft; CC licenses legally define usage terms. Disclaimers (C) are weak, and public portfolios (D) expose work rather than protect it.'
-    }, {
-        id: 9,
-        type: 'tf',
-        question: 'Cloud documents can be configured to allow recipients to view, comment, or edit.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'Cloud storage (Google Drive, OneDrive, etc.) provides granular sharing permissions: view, comment, or edit.'
-    }, {
-        id: 10,
-        type: 'tf',
-        question: 'Cloud documents must always be actively uploaded manually from your computer.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'False. Most cloud services offer automatic syncing (e.g., Google Drive for Desktop, OneDrive) — manual upload is not required.'
-    }, {
-        id: 11,
-        type: 'single',
-        question: 'You want to return Google Chrome to default settings. Which menu command should you select?',
-        options: ['You and Google', 'Appearance', 'Default browser', 'On startup', 'Reset and clean up'],
-        answer: [4],
-        explanation: '"Reset and clean up" contains the "Restore settings to their original defaults" button — exactly what you need to undo customizations.'
-    }, {
-        id: 12,
-        type: 'single',
-        question: 'Laptop: 64-bit dual-core 2Ghz, 32GB RAM, 1920x1080, 2GB GPU. Which statement is correct?',
-        options: ['Meets optimal requirements', 'Meets recommended requirements', 'Meets minimum requirements', 'Does NOT meet minimum requirements'],
-        answer: [2],
-        explanation: 'CPU and GPU only meet minimum thresholds (not the recommended quad-core or 4GB GPU). However, all components at least meet the minimum, so it qualifies as "minimum".'
-    }, {
-        id: 13,
-        type: 'multi',
-        question: 'Which TWO practices keep you informed about digital threats for an app? (Choose 2.)',
-        options: ['Subscribe to marketing offers', 'Follow independent social media accounts about digital tools', 'Review the publisher website once a year', 'Pay attention to app notifications for updates/TOS'],
-        answer: [1, 3],
-        explanation: 'Independent security sources alert you to new threats; official app notifications provide critical security patches. Marketing (A) and yearly checks (C) are useless for real-time security.'
-    }, {
-        id: 14,
-        type: 'multi',
-        question: 'After a client says your team needs better communication, which TWO actions should you take? (Choose 2.)',
-        options: ['Speak in a positive, respectful tone', 'Ask your teacher for specific feedback', 'Continue the same approach to improve with practice', 'Individually text the client to apologize', 'Have another team member take over communication'],
-        answer: [0, 1],
-        explanation: 'Professional tone and targeted feedback fix the issue. Doing the same thing (C), apologizing individually (D), or handing off (E) does not improve YOUR skills.'
-    }, {
-        id: 15,
-        type: 'multi',
-        question: 'Which TWO actions help the idea-generation process? (Choose 2.)',
-        options: ['Withhold criticism of peers\' ideas', 'Only share ideas you are very confident about', 'Encourage wild ideas', 'Limit each member to one or two ideas'],
-        answer: [0, 2],
-        explanation: 'Brainstorming requires a judgment-free zone (no criticism) and creative freedom (wild ideas). Limiting ideas (D) or only sharing safe ones (B) stifles innovation.'
-    }, {
-        id: 16,
-        type: 'tf',
-        question: 'Over 60% of e-waste is properly recycled worldwide.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'False. Only about 17–20% of global e-waste is properly recycled. The rest ends up in landfills or is informally processed.'
-    }, {
-        id: 17,
-        type: 'tf',
-        question: 'E-waste contains precious metals like gold and silver that can be recovered.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Circuit boards and components contain recoverable precious metals (gold, silver, copper, palladium), making recycling valuable.'
-    }, {
-        id: 18,
-        type: 'tf',
-        question: 'In digital communication, you should avoid directly stating the purpose of the message.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'False. Always state the purpose clearly and directly at the beginning to avoid confusion and save the recipient\'s time.'
-    }, {
-        id: 19,
-        type: 'tf',
-        question: 'Using bullet points or lists helps organize message details.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Bullet points improve scannability and clarity, especially for instructions or multiple action items.'
-    }, {
-        id: 20,
-        type: 'tf',
-        question: 'Use acronyms and abbreviations in all messages to keep them brief.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'False. Acronyms and abbreviations can confuse recipients who are not familiar with them. Spell things out for clarity.'
-    }, {
-        id: 21,
-        type: 'multi',
-        question: 'What are TWO traits of a constructive team member? (Choose 2.)',
-        options: ['Confident', 'Rigorous', 'Opinionated', 'Inquisitive'],
-        answer: [0, 3],
-        explanation: 'Confidence and curiosity drive collaboration. "Rigorous" is a behavior, not a personality trait, and being "opinionated" can hinder teamwork.'
-    }, {
-        id: 22,
-        type: 'single',
-        question: 'What is a benefit of using a cyclical (iterative) design process for digital products?',
-        options: ['Deliver final product quickly with few changes', 'Continually test and improve to achieve best result', 'Follow a strict schedule with definite deadline', 'Work independently without team input'],
-        answer: [1],
-        explanation: 'Iterative design focuses on constant feedback, testing, and refinement — leading to a superior final product. It does not prioritize speed (A) or rigid schedules (C).'
-    }, {
-        id: 23,
-        type: 'multi',
-        question: 'A study guide story claims students improved 25% and quotes one professor saying "students must use this guide." Which TWO fallacies are present? (Choose 2.)',
-        options: ['Ad hominem', 'False dilemma', 'Appeal to authority', 'Appeal to tradition'],
-        answer: [1, 2],
-        explanation: 'False dilemma (ignoring other study methods) and Appeal to authority (basing everything on one unnamed professor). No ad hominem or tradition fallacies are present.'
-    }, {
-        id: 24,
-        type: 'single',
-        question: 'You received the wrong reply from your email server. Which command should you use to check DNS routing?',
-        options: ['ping', 'tracert', 'telnet', 'nslookup'],
-        answer: [3],
-        explanation: 'nslookup queries DNS records to verify domain resolution. Ping (A) checks connectivity, tracert (B) traces hops, telnet (C) tests ports.'
-    }, {
-        id: 25,
-        type: 'single',
-        question: 'You copy a 30-sec video clip. Which scenario is NOT fair use?',
-        options: ['Use in a news report', 'Use to teach', 'Use in a political ad', 'Use in a parody'],
-        answer: [2],
-        explanation: 'Political ads are commercial/promotional and do not qualify for fair use. News, teaching, and parody are explicitly protected under fair use doctrine.'
-    }, {
-        id: 26,
-        type: 'single',
-        question: 'You copy a video clip. Which is NOT fair use?',
-        options: ['Use in a news report', 'Use to teach', 'Create a podcast that simply plays the clip', 'Create a parody'],
-        answer: [2],
-        explanation: 'Simply playing a clip for pure entertainment/consumption (without commentary, criticism, or transformation) is not fair use.'
-    }, {
-        id: 27,
-        type: 'tf',
-        question: 'Automation will displace some existing job roles.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Automation replaces repetitive manual and cognitive tasks, leading to displacement of certain roles (e.g., manufacturing, data entry).'
-    }, {
-        id: 28,
-        type: 'tf',
-        question: 'Automation will lead to the creation of new job roles.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. While displacing some jobs, automation also creates new roles in AI maintenance, robotics engineering, data science, and system oversight.'
-    }, {
-        id: 29,
-        type: 'tf',
-        question: 'Activities that involve social interactions are MORE likely than others to be automated.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'False. Social interactions require emotional intelligence, empathy, and nuanced communication — making them LESS likely to be automated than predictable physical tasks.'
-    }, {
-        id: 30,
-        type: 'multi',
-        question: 'In which TWO ways do cloud data centers negatively impact the environment? (Choose 2.)',
-        options: ['Built in cold climates damaging polar habitats', 'Built in urban centers causing air pollution', 'Use significant electricity from non-renewable sources', 'Generate massive heat raising temperature of nearby water'],
-        answer: [2, 3],
-        explanation: 'Data centers consume fossil-fuel-based energy and discharge hot water/air. They are not typically built in polar habitats (A) or urban centers causing air pollution (B).'
-    }, {
-        id: 31,
-        type: 'single',
-        question: 'In a cyclical design process, what is the FIRST task?',
-        options: ['Generate ideas', 'Develop the prototype', 'Identify project requirements', 'Test the prototype'],
-        answer: [2],
-        explanation: 'You must first identify the project requirements (goals, constraints, user needs) before you can generate ideas or build anything.'
-    }, {
-        id: 32,
-        type: 'single',
-        question: 'After testing the prototype in a cyclical design process, what is the next step?',
-        options: ['Generate new ideas', 'Refine the prototype', 'Identify requirements', 'Launch the final product'],
-        answer: [1],
-        explanation: 'Testing yields feedback; the next step is to refine the prototype based on that feedback, then test again — this is the core of the cycle.'
-    }, {
-        id: 33,
-        type: 'tf',
-        question: 'Refining your search terms is an effective online research practice.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Refining keywords (e.g., adding specifics, removing fluff) dramatically improves search result relevance.'
-    }, {
-        id: 34,
-        type: 'tf',
-        question: 'Using Boolean operators (AND, OR, NOT) is an effective online research practice.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Boolean operators are powerful tools to combine, exclude, or broaden search terms for precise results.'
-    }, {
-        id: 35,
-        type: 'multi',
-        question: 'Which THREE solutions are most helpful when solving a hardware issue with a team? (Choose 3.)',
-        options: ['Focus on how tough the task is', 'Provide possible solutions', 'Provide reasons a solution is not possible', 'Share screenshots demonstrating the issue', 'Collaborate via team messaging with tips'],
-        answer: [1, 3, 4],
-        explanation: 'Offering solutions, visual proof, and collaborative ideas solve problems. Complaining (A), making excuses (C), or sharing unrelated links are unhelpful.'
-    }, {
-        id: 36,
-        type: 'single',
-        question: 'Is an original image automatically protected by copyright the moment it is created?',
-        options: ['Yes', 'No'],
-        answer: [0],
-        explanation: 'Yes. Under international law (Berne Convention), copyright is automatic upon creation and fixation in a tangible medium — no registration required.'
-    }, {
-        id: 37,
-        type: 'tf',
-        question: '"The patient was discharged home on the same day." is a clear, professional medical documentation statement.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. It is concise, grammatically correct, and unambiguous — exactly what medical records require.'
-    }, {
-        id: 38,
-        type: 'tf',
-        question: 'Understanding monetization and employment practices helps you understand motivations behind online content.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Knowing why content is made (e.g., ad revenue, sponsorships) helps you recognize bias, agendas, and misinformation.'
-    }, {
-        id: 39,
-        type: 'tf',
-        question: 'Using public beta applications can offer hints about industry technology trends.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Beta apps showcase experimental features and emerging technologies, giving early insight into where the industry is heading.'
-    }, {
-        id: 40,
-        type: 'tf',
-        question: 'Broadcast news has the highest standards in terms of coverage accuracy, timeliness, and rigor.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'False. Broadcast news operates on tight deadlines, often prioritizing speed over depth and rigor. Peer-reviewed journals and long-form investigative reports hold higher standards.'
-    }, {
-        id: 41,
-        type: 'single',
-        question: 'What is the most appropriate practice when debugging a website?',
-        options: ['Yawning and sleeping', 'Writing comments in project code', 'Using browser developer tools to test sites', 'Only writing clear code'],
-        answer: [2],
-        explanation: 'Debugging requires active testing using browser DevTools (inspector, console, network tab). Comments (B) are helpful but not a debugging *action*, and clear code (D) prevents bugs but doesn\'t debug existing ones.'
-    }, {
-        id: 42,
-        type: 'tf',
-        question: 'Cloud documents have version history to track changes over time.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Most cloud storage (Google Drive, OneDrive, Dropbox) automatically saves version history, allowing you to revert to previous edits.'
-    }, {
-        id: 43,
-        type: 'tf',
-        question: 'Cloud documents can be converted to other file types (e.g., Word to PDF).',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Cloud suites (Google Workspace, Microsoft 365) offer built-in export/convert functionality to various formats (PDF, ODT, DOCX).'
-    }, {
-        id: 44,
-        type: 'single',
-        question: 'Which is the BEST example of a strong password?',
-        options: ['Password123', 'MyDogFluffy', 'Tr0ub4dor&3!', '12345678'],
-        answer: [2],
-        explanation: '"Tr0ub4dor&3!" includes upper/lowercase, numbers, special characters, and is not a common dictionary phrase — strong password. Others are weak (common words, sequential numbers).'
-    }, {
-        id: 45,
-        type: 'single',
-        question: 'During a video conference, which action is considered professional?',
-        options: ['Mute microphone when not speaking', 'Eat lunch during the call', 'Visibly multitask on other devices', 'Always keep camera turned off'],
-        answer: [0],
-        explanation: 'Muting when not speaking prevents background noise and respects others — a basic professional etiquette. Eating (B) and multitasking (C) are distracting and rude.'
-    }, {
-        id: 46,
-        type: 'single',
-        question: 'What is the primary purpose of two-factor authentication (2FA)?',
-        options: ['Increase download speed', 'Add an extra layer of security', 'Save files automatically', 'Share files publicly'],
-        answer: [1],
-        explanation: '2FA adds a second verification step (e.g., SMS code, authenticator app) beyond just a password, making unauthorized access much harder.'
-    }, {
-        id: 47,
-        type: 'single',
-        question: 'What does an End-User License Agreement (EULA) typically define?',
-        options: ['User rights and restrictions', 'Computer hardware specs', 'Internet speed required', 'Keyboard shortcuts'],
-        answer: [0],
-        explanation: 'A EULA is a legal contract that defines how the software can be used, including restrictions, ownership, and liability clauses.'
-    }, {
-        id: 48,
-        type: 'single',
-        question: 'Which is a permanent consequence of your online digital footprint?',
-        options: ['Deleting a tweet removes it permanently', 'Archived data can be retrieved and used against you', 'Private accounts are completely invisible', 'Cookies are reset yearly'],
-        answer: [1],
-        explanation: 'Digital footprints persist. Archived data (via caches, archives, screenshots) can resurface. Deleting (A) does not guarantee removal, and private accounts (C) are not fully invisible.'
-    }, {
-        id: 49,
-        type: 'single',
-        question: 'What is the 3-2-1 backup rule?',
-        options: ['3 copies, 2 different media, 1 offsite', '3 hard drives, 2 cables, 1 monitor', '3 files, 2 backups, 1 day', '3 passwords, 2 emails, 1 phone'],
-        answer: [0],
-        explanation: 'The 3-2-1 rule means: keep 3 copies of data, on 2 different types of media, with 1 copy stored offsite (to survive local disasters).'
-    }, {
-        id: 50,
-        type: 'single',
-        question: 'What is "phishing" in the context of cybersecurity?',
-        options: ['A type of fishing game', 'A method to improve internet speed', 'A fraudulent attempt to obtain sensitive data', 'A hardware port on a computer'],
-        answer: [2],
-        explanation: 'Phishing is a social engineering attack where criminals impersonate legitimate entities to trick users into revealing credentials, credit card numbers, or other sensitive information.'
-    },
-    // ============================================================
-    //  NEW QUESTIONS (Q51 - Q62)
-    // ============================================================
-    {
-        id: 51,
-        type: 'multi',
-        question: 'You are conducting online research. You find a selection of videos that appear to support your hypothesis. You need to determine whether a video has been altered to change the original message. Which two methods of audio editing would indicate that the video has been altered to change the message? (Choose 2.)',
-        options: ['Original audio replaced by a music soundtrack', 'Closed captions added to the original audio', 'Voice-over identifying the cameraperson added to the end', 'Words have been rearranged and inserted'],
-        answer: [0, 3],
-        explanation: 'Replacing original audio with music (A) removes original context, and rearranging/inserting words (D) changes the spoken message. Adding captions (B) or crediting crew (C) does not alter the core message.'
-    }, {
-        id: 52,
-        type: 'single',
-        question: 'You need to find drivers for a Windows 10 laptop. Device Manager shows "unknown device" for several components. What should you do?',
-        options: ['Restart the computer and use the Windows 10 repair tool', 'From Device Manager, scan for hardware changes', 'Purchase device driver software from the store where the computer was purchased', 'Use the model number of the machine to locate the Drivers page on the manufacturer\'s website'],
-        answer: [3],
-        explanation: 'The correct approach is to use the laptop\'s model number to find official drivers on the manufacturer\'s support website. Restarting (A) or scanning (B) won\'t install missing drivers, and purchasing (C) from a random store is risky.'
-    }, {
-        id: 53,
-        type: 'tf',
-        question: 'Staying logged into websites contributes to maximizing your online privacy.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'No. Staying logged in increases tracking and session hijacking risks. You should log out to improve privacy.'
-    }, {
-        id: 54,
-        type: 'tf',
-        question: 'Deleting cookies after using the browser contributes to maximizing your online privacy.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'Yes. Deleting cookies removes tracking data and login sessions stored locally, enhancing privacy.'
-    }, {
-        id: 55,
-        type: 'tf',
-        question: 'Using the same password for multiple accounts contributes to maximizing your online privacy.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'No. Using the same password is a security risk; if one account is breached, all accounts are compromised. It does not help privacy.'
-    }, {
-        id: 56,
-        type: 'tf',
-        question: 'Using Private Browsing mode maintains complete anonymity online.',
-        options: ['True', 'False'],
-        answer: [1],
-        explanation: 'No. Private Browsing only hides history locally. Your IP address, ISP, and websites still track you. It does not provide anonymity.'
-    }, {
-        id: 57,
-        type: 'multi',
-        question: 'You are starting a home bakery business. You plan to create a website on which customers can place pickup and delivery orders. For which two reasons should you create a prototype of your order form? (Choose 2.)',
-        options: ['To enable customers to place orders before you launch the website', 'To reveal flaws in your design', 'To test whether the solution will work', 'To advertise your business'],
-        answer: [1, 2],
-        explanation: 'Prototyping is used to reveal design flaws (B) and test functionality (C) before launch. It is not for taking orders early (A) or advertising (D).'
-    }, {
-        id: 58,
-        type: 'tf',
-        question: 'Checking Task Manager for resource usage is the appropriate step for a computer screen that turns white with an error message.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Task Manager allows you to see if an application is frozen or consuming excessive resources, which often causes white screen errors.'
-    }, {
-        id: 59,
-        type: 'tf',
-        question: 'Checking the network connection is the appropriate step for Windows loading slowly while searching for information on the internet.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Slow internet browsing is typically caused by network connectivity issues, so checking the network connection is the correct step.'
-    }, {
-        id: 60,
-        type: 'tf',
-        question: 'Checking application permissions is the appropriate step for a smartphone camera shutter noise when you are not taking pictures.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. A camera app or malware might be using the camera in the background; checking app permissions helps identify unauthorized access.'
-    }, {
-        id: 61,
-        type: 'tf',
-        question: 'Checking the hard disk drive for a worn disk head is the appropriate step for a rhythmic clicking or grinding sound on startup.',
-        options: ['True', 'False'],
-        answer: [0],
-        explanation: 'True. Rhythmic clicking or grinding sounds from a computer during startup are classic symptoms of a failing hard disk drive (worn disk head).'
-    }];
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  MASTER QUESTION BANK – 55 verified questions
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    // ============================================================
-    // 2. APP STATE
-    // ============================================================
-    const totalQ = QUESTIONS.length;
-    let currentIndex = 0;
-    let userAnswers = new Array(totalQ).fill(null);
-    let questionLocked = new Array(totalQ).fill(false);
-    let timerInterval = null;
-    let timeLeft = totalQ * 60;
-    let examSubmitted = false;
-    let appMode = 'training';
+const QUESTIONS = [
+  { id:'q1', number:1, text:'Which of the following files can you NOT send through a standard email provider such as Gmail or Yahoo?', type:'single', options:['A. A 30-frame 1080p-resolution animated GIF','B. A 5-minute podcast in MP3 format','C. A 1-minute 8K-resolution video in AVI format','D. A 400-page plain-text file'], correct:[2], explanation:'8K-resolution video in AVI format is extremely large (>25 MB), exceeding standard email attachment limits.' },
+  { id:'q2', number:2, text:'Your group members need to be informed of a change in plans for the next meeting. Which response is the most efficient choice?', type:'single', options:['A. Post the change to your social media account','B. Send an email to your instructor','C. Send an email to the group about the change','D. Call them each individually'], correct:[2], explanation:'Sending a single email to the entire group is efficient, ensures everyone gets the same information, and creates a written record.' },
+  { id:'q3', number:3, text:'For each of the three statements about improving the reach and success of a digital marketing campaign, select True or False.', type:'truefalse', options:['Use buttons linking to specific URLs in graphics or documents to increase traffic compared to text-based calls to action.','Using an A/B test is a good way to determine which messaging is most effective for moving audiences to action.','Use built-in analytics tools to discover what about the effectiveness of a medium or platform at driving traffic to a specific objective.'], correct:[true,true,true], explanation:'All three statements are correct: visual CTAs (buttons) outperform text links; A/B testing validates messaging; analytics tools provide critical performance data.' },
+  { id:'q4', number:4, text:'You need to find drivers for a Windows 10 laptop. Device Manager shows "unknown device" for several components. What should you do?', type:'single', options:['A. From Device Manager, scan for hardware changes','B. Use the model number of the machine to locate the Drivers page on the laptop manufacturer\'s website','C. Restart the computer and use the Windows 10 repair tool','D. Purchase device driver software from the store where the computer was purchased'], correct:[1], explanation:'The most reliable method is to visit the manufacturer\'s support site using the laptop\'s model number to download the correct, signed drivers.' },
+  { id:'q5', number:5, text:'You plan to sell your computer. You delete your personal files from your hard drive and then empty the Recycle Bin or Trash. What data remains on your hard drive?', type:'single', options:['A. All of it. The reference to the files on the hard drive remains. The file data remains.','B. None. The reference to the files on the hard drive and the file data are completely removed.','C. The reference to the files on the hard drive remains. The file data is completely removed.','D. The reference to the files on the hard drive is deleted. The file data remains.'], correct:[3], explanation:'Deleting files and emptying the Recycle Bin only removes the file system references (pointers). The actual file data remains on the disk until overwritten.' },
+  { id:'q6', number:6, text:'Which action best demonstrates an understanding of intellectual property guidelines when reusing someone\'s work?', type:'single', options:['A. Providing attribution after adhering to fair use principles','B. Crediting the original source in a bibliography instead of using direct in-text citations','C. Using small portions of the work under the assumption that it falls under fair use','D. Making sure you modify the original work slightly and then present it as your own'], correct:[0], explanation:'Proper attribution combined with adherence to fair use principles is the correct approach.' },
+  { id:'q7', number:7, text:'You receive a question about an app you are supporting. Which three responses are appropriate? (Choose 3.)', type:'multi', options:['A. Send annotated, sequential screenshots','B. Provide clear and concise instructions','C. Share links to video content with useful steps','D. Notify them that is likely user error','E. Send positive message with several emojis'], correct:[0,1,2], explanation:'Annotated screenshots, clear instructions, and video links are professional and helpful.' },
+  { id:'q8', number:8, text:'Which two actions describe ways to protect individual and corporate intellectual property? (Choose 2.)', type:'multi', options:['A. Place a watermark over all publicly shared content','B. Create a Creative Commons license, allowing others to use your work with attribution','C. Put a disclaimer in all your posts stating that all content is your intellectual property','D. Create a digital portfolio that is accessible to everyone on the internet'], correct:[0,1], explanation:'Watermarks deter unauthorized use, and Creative Commons licenses provide a clear legal framework for sharing with attribution.' },
+  { id:'q9', number:9, text:'For each of the four statements about documents using a cloud storage software as part of their workflow, determine whether statement is True or False.', type:'truefalse', options:['Cloud documents cannot function without an active internet connection.','Cloud documents have various degrees of security to control who does or does not have the ability to view them.','Cloud documents can be configured to allow the recipient to view the document, leave comments on the document, or change the document.','Cloud documents must always be actively uploaded from your computer to a cloud storage account.'], correct:[false,true,true,false], explanation:'Cloud documents can work offline with sync later (False). They have granular sharing permissions (True). They support view/comment/edit roles (True). They can auto-sync without manual upload (False).' },
+  { id:'q10', number:10, text:'For each of the three statements about password sharing, select True or False.', type:'truefalse', options:['If you use someone else\'s password, your employer can restrict your future access to the company network.','Using a coworker\'s password to sign them into the company network because they are late for work is fraud.','If multiple people know a coworker\'s password and a security breach occurs, they could all be held responsible.'], correct:[true,true,true], explanation:'All three statements are correct. Password sharing violates security policies, can be considered fraud, and creates shared liability.' },
+  { id:'q11', number:11, text:'Which two practices are recommended to help you stay informed about current digital threats, scams, and security breaches for a digital app that you use? (Choose 2.)', type:'multi', options:['A. Follow a variety of social media accounts that post independent content about digital tools.','B. Pay attention to app notifications for software updates and terms of use changes from the app publisher.','C. Subscribe to email alerts for the app publisher\'s latest marketing offers and special discounts.','D. Review the app publisher\'s website once a year for updates and news.'], correct:[0,1], explanation:'Following independent security sources (A) and monitoring official app notifications (B) are proactive ways to stay informed.' },
+  { id:'q12', number:12, text:'For each of the four statements about e-waste, select True or False.', type:'truefalse', options:['Over 60% of e-waste is recycled.','E-waste is the slowest growing form of waste worldwide.','E-waste contains precious metals like gold and silver that can be recovered and reused.','E-waste contains toxic metals like lead and mercury that cause human illnesses if they leach into groundwater.'], correct:[false,false,true,true], explanation:'Only about 17-20% of e-waste is formally recycled (False). E-waste is actually the fastest-growing waste stream (False). It does contain valuable precious metals (True) and toxic substances (True).' },
+  { id:'q13', number:13, text:'You are preparing a presentation on the population increase in your city over the years. You need to effectively represent the population growth over time. Which two types of visual representation would be most effective? (Choose 2.)', type:'multi', options:['A. Map','B. Bar graph','C. Line graph','D. Pie chart'], correct:[1,2], explanation:'Bar graphs and line graphs are ideal for showing trends over time.' },
+  { id:'q14', number:14, text:'You customize your installation of Google Chrome. You are unhappy with some of the changes. You need to return Google Chrome to its default state by using only one command on the Settings menu shown. Which command should you select?', type:'single', options:['A. You and Google','B. Appearance','C. Default browser','D. On startup','E. Reset and clean up'], correct:[4], explanation:'The "Reset and clean up" section in Chrome Settings contains the "Restore settings to their original defaults" option.' },
+  { id:'q15', number:15, text:'You encounter a video on social media that you suspect might be a deepfake generated by AI. For each of the four statements, select Yes if the action would help you determine if the video is fake or No if it would not.', type:'yesno', options:['Assume that because the video contains a statement unlikely to be said by the speaker that the video is trustworthy.','Search online for some of the specific quotes from the video to see if they are being featured by reputable news organizations.','Consider the motivations of the originators and sharers of the video.','Check the comments on the video to see if there are accusations of impropriety or other issues.'], correct:[false,true,true,true], explanation:'Assuming trustworthiness based on content alone is a mistake (No). Searching quotes, considering motivations, and checking comments are valid verification steps (Yes).' },
+  { id:'q16', number:16, text:'You need to plan a project that will use a cyclical design process. In which order should you complete the project tasks?', type:'order', options:['Develop the prototype','Generate ideas','Identify project requirements','Refine the prototype','Test the prototype'], correct:[2,1,0,4,3], explanation:'Correct cyclical order: Identify requirements → Generate ideas → Develop prototype → Test → Refine.' },
+  { id:'q17', number:17, text:'A story about a college test prep study guide appears in your social media news feed. The story contains the following information: "A recent study of 1000 students showed that students improved their test scores by 25% when they used this specific study guide. One renowned college professor associated with the study stated, \'If students do not use this guide, they might not earn the scores they need to be admitted to a college or university.\'" You identify two common logical fallacies in the content. Which two logical fallacies does the story contain? (Choose 2.)', type:'multi', options:['A. Ad hominem ("against the person"): attacking the person and not the issue','B. False dilemma: limiting the possible choices to avoid consideration of another choice','C. Appeal to authority: relying on one expert, named or unnamed, as the basis for an argument','D. Appeal to tradition: ignoring past problems and assuming that the way things were is better than they are now'], correct:[1,2], explanation:'False dilemma (B) presents only two options. Appeal to authority (C) relies on a single professor\'s statement.' },
+  { id:'q18', number:18, text:'You copy a 30-second video clip from the internet. You do not know who created the video. Which scenario would NOT be fair use of the video clip?', type:'single', options:['A. You use the video clip as part of a news report','B. You use the video clip to teach','C. You create a political ad that includes the video clip','D. You create a parody that includes the video clip'], correct:[2], explanation:'Using the clip in a political ad is commercial/political use, which is less likely to be fair use.' },
+  { id:'q19', number:19, text:'Which two video editing methods are used to alter videos to change the original meaning of the content? (Choose 2.)', type:'multi', options:['A. Identify the people in the video and the cameraperson in credits at the end of the video.','B. At the end of the video, show links to credible sources that support the message of the video.','C. Edit together pieces of different videos.','D. Show a brief clip of a longer segment of the video.'], correct:[2], explanation:'Editing together pieces from different videos (C) can fundamentally change meaning by creating false context.' },
+  { id:'q20', number:20, text:'You want to make sure your laptop computer can run a new software application. The laptop has: 64-bit dual core 2Ghz CPU with SSE2 support, 32 GB RAM, 1920x1080 display, Graphics card with 2 GB RAM. Given the system requirements table, which statement is correct?', type:'single', options:['A. This laptop meets the optimal system requirements.','B. This laptop meets the recommended system requirements.','C. This laptop meets the minimum system requirements.','D. This laptop does not meet the minimum system requirements.'], correct:[2], explanation:'Minimum requires: 16 GB RAM, 1 GB graphics. Laptop has 32 GB RAM and 2 GB graphics → meets minimum. Recommended requires 4 GB graphics → laptop has only 2 GB, so fails recommended.' },
+  { id:'q21', number:21, text:'For each of the four statements about digital communications with clients and coworkers, select True or False.', type:'truefalse', options:['Avoid directly stating the purpose of the message.','Use bullet points or lists to organize message details.','Use acronyms and abbreviations in all messages to keep them brief.','When you need a client to make a choice, provide multiple options to minimize back-and-forth.'], correct:[false,true,false,true], explanation:'You should state the purpose clearly (False). Bullet points improve readability (True). Overusing acronyms confuses clients (False). Providing options reduces back-and-forth (True).' },
+  { id:'q22', number:22, text:'What is a benefit of using a cyclical design process to create digital products?', type:'single', options:['A. It allows you to deliver the final product as quickly as possible with few changes.','B. It allows you to continually test and improve the product to achieve the best possible result.','C. It allows you to follow a strict schedule with a definite ending deadline.','D. It allows you to work independently, without needing to ask for input from other team members.'], correct:[1], explanation:'Cyclical design (like Agile) emphasizes iterative testing and improvement, leading to a better final product.' },
+  { id:'q23', number:23, text:'Which type of software can be used online and with iOS and Android devices?', type:'single', options:['A. Mac OS','B. Windows 11','C. Microsoft 365','D. Chrome OS'], correct:[2], explanation:'Microsoft 365 is a cloud-based suite that works on multiple platforms including iOS and Android.' },
+  { id:'q24', number:24, text:'You are using Microsoft Word on a Windows 10 computer to write a paper about a company. The company name, ABusiness, begins with two capital letters. Each time you type the company name, the software corrects the capital letters. Where can you change this correction preference?', type:'single', options:['A. In the Grammar & Refinements settings.','B. In the computer operating system preferences.','C. In the AutoCorrect Options settings.','D. In the Office Language Preferences.'], correct:[2], explanation:'AutoCorrect options control automatic capitalization corrections in Microsoft Office.' },
+  { id:'q25', number:25, text:'Your teacher has assigned a group project. Part of the grade includes evaluation of each team member\'s positive contributions. Select the three statements that best demonstrate your ability to contribute productively to a group. (Choose 3.)', type:'multi', options:['A. Set a series of deadlines throughout the project to keep all members accountable.','B. Do extra work to compensate for group members who are not doing their share.','C. Agree with your teacher\'s recommendations on the division for the project\'s scope.','D. Save discussion of deliverable format until a later meeting.','E. Agree to a set of norms concerning the online group conversation.'], correct:[0,2,4], explanation:'Setting deadlines (A), agreeing on scope (C), and establishing norms (E) are productive.' },
+  { id:'q26', number:26, text:'You are trying to access a website, but it is not loading properly on your browser. What should you try first?', type:'single', options:['A. Clear the browser cache.','B. Email the website owner.','C. Check the BIOS settings.','D. Remove unnecessary apps.'], correct:[0], explanation:'Clearing the browser cache is the first and simplest step to resolve loading issues.' },
+  { id:'q27', number:27, text:'For each of the four statements about technology-driven automation, select True or False.', type:'truefalse', options:['Automation will displace some existing job roles.','Automation will lead to the creation of new job roles.','Activities that include social interactions are more likely than others to be automated.','Activities that include physical tasks in predictable environments are more likely than others to be automated.'], correct:[true,true,false,true], explanation:'Automation displaces some roles and creates others. Social interactions are less likely to be automated; physical tasks in predictable environments are more likely.' },
+  { id:'q28', number:28, text:'A classmate is asking for assistance editing a document to help improve readability when posted online. Which two options are the best ways to achieve that? (Choose 2.)', type:'multi', options:['A. Remind them to add accessibility features, like closed captions.','B. Encourage them to minimize the use of excessive punctuation and sentences that span multiple lines.','C. Have them check the text against the grade level it reads at to ensure alignment of message and audience.','D. Ensure that there is limited contrast between the type and the background to ensure readability on all types of screens.'], correct:[1,2], explanation:'Minimizing excessive punctuation and long sentences (B) and checking grade level (C) directly improve readability.' },
+  { id:'q29', number:29, text:'Which two actions will improve the readability of a document? (Choose 2.)', type:'multi', options:['A. Set the line spacing so there is a slight distance between each line of text.','B. Type in all caps to make the text more uniform in appearance.','C. Select a font family that is unique, decorative, and in line with modern trends.','D. Carefully choose a font color with strong contrast against the background.','E. Use a small, compact font size to prevent paragraphs from breaking across pages.'], correct:[0,3], explanation:'Adequate line spacing (A) and strong contrast (D) greatly improve readability.' },
+  { id:'q30', number:30, text:'Jackson is working at a tech store. A customer calls in to ask about a faulty laptop. The laptop is an older model, and there are newer, more updated versions available to purchase in the store. What is the best first step for Jackson to take to understand the issue?', type:'single', options:['A. Explain to the customer that the laptop is probably too old to fix.','B. Suggest that the customer buy a new laptop.','C. Ask the customer about any error messages.','D. Tell the customer to come into the store right away for a refund.'], correct:[2], explanation:'The first step in troubleshooting is to gather information. Asking about error messages helps diagnose the problem.' },
+  { id:'q31', number:31, text:'Match each step in the media creation process with its description. (Order the descriptions to match Pre‑production, Post‑production, Distribution)', type:'order', options:['Scripting, storyboarding, and location scouting','Editing, applying effects, and adding captions','Uploading media to the desired platform'], correct:[0,1,2], explanation:'Pre‑production → Scripting, Post‑production → Editing, Distribution → Uploading.' },
+  { id:'q32', number:32, text:'Which three actions are good strategies for being a successful member of a team? (Choose 3.)', type:'multi', options:['A. Share and accept feedback during the process.','B. Use team messaging to collaborate with tips and ideas.','C. Use reply all to keep everyone up to date.','D. Keep the discussion light and lively.','E. Never pressure team members about deadlines.','F. Be prompt and focused during meetings.'], correct:[0,1,5], explanation:'Sharing feedback (A), using team messaging (B), and being prompt/focused (F) are constructive.' },
+  { id:'q33', number:33, text:'Isaac\'s online banking app asks for a code from his phone in addition to his password. What is this an example of?', type:'single', options:['A. A password reset prompt','B. Identity monitoring notification','C. Multifactor authentication','D. A phishing attempt'], correct:[2], explanation:'Requiring a code from a phone in addition to a password is a classic example of multifactor authentication (MFA).' },
+  { id:'q34', number:34, text:'Which option is recommended to assist you in creating a secure password that you can remember?', type:'single', options:['A. Use parts of a random phrase.','B. Use your favorite color and favorite animal.','C. Use your social media profile name.','D. Use a name with a number at the end.'], correct:[0], explanation:'Using a random phrase is both secure and memorable. Personal information is easy to guess.' },
+  { id:'q35', number:35, text:'For each of the four statements about contributing constructively to a project team, select Yes if the action is appropriate or No if it is not.', type:'yesno', options:['Offer to lead the group so you can steer the project\'s direction.','Avoid conflicts by agreeing with every suggestion.','Point out group members\' mistakes and offer to fix them.','Listen carefully to your teammates\' ideas before offering feedback.'], correct:[false,false,false,true], explanation:'Offering to lead may be seen as controlling (No). Agreeing with everything is not constructive (No). Pointing out mistakes can be helpful but often comes across as critical (No). Listening is always constructive (Yes).' },
+  { id:'q36', number:36, text:'In which two ways do cloud computing data centers negatively impact the environment? (Choose 2.)', type:'multi', options:['A. They generate massive amounts of heat, which raises the temperature of nearby bodies of water.','B. They are often built in urban environments, which leads to increased air pollution.','C. They use a significant amount of electricity that is derived from non-renewable energy sources.','D. They are usually built in cold climates, damaging habitats for polar bears and other wildlife.'], correct:[0,2], explanation:'Data centers produce heat that can affect water temperatures (A) and consume large amounts of electricity, often from non-renewable sources (C).' },
+  { id:'q37', number:37, text:'You lead a project team in your digital design class. You and your teammates will create a project for a local business. You arrange a virtual meeting with the business owner to discuss the project. You need to ensure that the business owner leaves the meeting with confidence that your team can successfully complete the project. Which three actions should you take? (Choose 3.)', type:'multi', options:['A. Include a lengthy discussion about the design applications you will use.','B. Tell the client that you will email a draft proposal that includes deadlines.','C. Discuss your career goals in the field of digital design.','D. After the client presents ideas, paraphrase what they said.','E. Decide with the client which forms of digital communication to use during the project.','F. Speak in a casual, informal manner to put the client at ease and encourage discussion.'], correct:[1,3,4], explanation:'Sending a proposal with deadlines (B), paraphrasing client ideas (D), and agreeing on communication methods (E) build confidence.' },
+  { id:'q38', number:38, text:'You are the leader of a digital design team. Your team is creating a poster for a local fundraising event. You send a draft of the poster to the client. The client requests changes that you and your team members believe will affect the design. You need to communicate effectively with the client about the design changes. Which three actions should you take? (Choose 3.)', type:'multi', options:['A. Ask the client to explain the reasons for the changes and the impact they will have on the poster.','B. Tell the client you don\'t want to make the changes.','C. Tell the client that their ideas are not welcome.','D. Remind the client that your team has the knowledge and experience to create an effective final poster design.','E. Create a mockup of the poster with the client\'s changes and send it to the client.','F. Focus the discussion on the design choices, rather than your emotional response to the client\'s changes.'], correct:[0,4,5], explanation:'Asking for reasons (A), creating a mockup (E), and focusing on design (F) are professional.' },
+  { id:'q39', number:39, text:'You post a video on your company\'s website. Site users complain that the video takes a long time to load. You need to decrease the video loading time. For each of the four actions, select Yes if it will make the video load faster or No if it will not.', type:'yesno', options:['Increase the video bitrate.','Convert the video to HTML5.','Decrease the video resolution.','Replace the video with an uncompressed version.'], correct:[false,true,true,false], explanation:'Increasing bitrate (No) and using uncompressed (No) increase file size. HTML5 (Yes) offers better compression, and lower resolution (Yes) reduces file size.' },
+  { id:'q40', number:40, text:'Experts are concerned that society will lose some skills because of reliance on technology. Which three skills can become underutilized through the use of technology? (Choose 3.)', type:'multi', options:['A. Eye-hand coordination','B. Memorization','C. Mental math','D. Map navigation','E. Organization','F. Dexterity'], correct:[1,2,3], explanation:'Memorization (B), mental math (C), and map navigation (D) are often replaced by technology.' },
+  { id:'q41', number:41, text:'You open a small business. You and your employees will use the Microsoft Office suite of productivity software. You need to decide whether to install the desktop apps or use the online version. What is a benefit of using a desktop app rather than a cloud app?', type:'single', options:['A. The up-front cost is less','B. The software does not depend on an internet connection','C. The software uses less hard disk drive storage space.','D. The software is updated more frequently.'], correct:[1], explanation:'Desktop apps work offline, unlike cloud apps which require an internet connection.' },
+  { id:'q42', number:42, text:'For each of the four statements about web credibility, select True or False.', type:'truefalse', options:['Web pages are more credible if they cite sources for their content.','You know a source is reliable when the website address ends in .org','Consulting multiple sources is a good way to determine a site\'s accuracy.','A search engine differentiates between good and bad sites. The first results are usually the most reliable.'], correct:[true,false,true,false], explanation:'Citing sources (True) and consulting multiple sources (True) improve credibility. .org does not guarantee reliability (False), and search engine ranking is not a reliability indicator (False).' },
+  { id:'q43', number:43, text:'After meeting with a client, the client told your teacher that your team needs to improve its communication skills. Which two actions should you take to improve your communication skills? (Choose 2.)', type:'multi', options:['A. Ask your teacher for feedback on which communication skills you need to improve.','B. Individually text the client to apologize for your poor communication.','C. Continue the same approach so your team can improve with practice.','D. When talking with the client, speak in a positive, respectful tone.','E. Have another team member take over the communication at the next meeting.'], correct:[0,3], explanation:'Seeking feedback (A) and speaking positively/respectfully (D) are constructive.' },
+  { id:'q44', number:44, text:'Your school asks you to design a website to track participation in student clubs. You gather your team to generate ideas to solve the problem. Which two actions will help the idea-generation process? (Choose 2.)', type:'multi', options:['A. Withhold criticism of your peers\' ideas.','B. Only share ideas you\'re very confident about.','C. Encourage wild ideas.','D. Limit each team member to one or two ideas.'], correct:[0,2], explanation:'Withholding criticism (A) and encouraging wild ideas (C) foster creativity.' },
+  { id:'q45', number:45, text:'You are adding all text to the images on your website. For each of the three types of information, select Yes if it is necessary to include it in the alt-text or No if it is not.', type:'yesno', options:['The image copyright','A brief description of the image','Context and details relevant to the image purpose'], correct:[false,true,true], explanation:'Copyright (No) is not needed in alt-text; a brief description (Yes) and context/details (Yes) are essential for accessibility.' },
+  { id:'q46', number:46, text:'You are researching apples on the internet. For each of the four research topics, select Yes if a Boolean search will help to identify relevant results faster or No if it will not.', type:'yesno', options:['Apple varieties','History of apple agriculture','Recipes for apple pie or cake','Macintosh apples, but not the Macintosh computer'], correct:[false,false,true,true], explanation:'Simple searches like "apple varieties" (No) don\'t need Boolean; recipes (Yes) benefit from OR, and excluding a term (Yes) helps with Macintosh.' },
+  { id:'q47', number:47, text:'For each of the three statements about practices designed to keep your knowledge and awareness of new technologies current, select whether it is True or False.', type:'truefalse', options:['Understanding monetization and employment practices will give you a better sense of the motivations behind the content that you consume online.','Using public beta applications can offer hints at adoption of industry trends and technology updates.','Due to editing and researching requirements, broadcast news has the highest standards in terms of coverage accuracy, timeliness and rigor.'], correct:[true,true,false], explanation:'Understanding monetization (True) and using betas (True) help stay current. Broadcast news does not always have the highest standards (False).' },
+  { id:'q48', number:48, text:'You purchase a software program to complete a specific project. After you finish the project, a friend asks to borrow the program. You need to determine whether this is an acceptable use of the software. Where can you find this information?', type:'single', options:['A. Access Control List (ACL)','B. Content Management System (CMS)','C. Electronic Software Rating Board (ESRB)','D. End User License Agreement (EULA)'], correct:[3], explanation:'The EULA (End User License Agreement) specifies the terms of use, including whether sharing is allowed.' },
+  { id:'q49', number:49, text:'What are two traits of a constructive team member? (Choose 2.)', type:'multi', options:['A. Confident','B. Rigorous','C. Opinionated','D. Inquisitive'], correct:[0,3], explanation:'Confidence (A) and inquisitiveness (D) are positive traits.' },
+  { id:'q50', number:50, text:'For each of the three accessibility statements, select True if the statement is correct for web accessibility standards, or False if it is not.', type:'truefalse', options:['The preferred font style is sans serif.','The minimum recommended font size for website body text is 12 points.','You should maintain low contrast between the font color and the background color.'], correct:[true,false,false], explanation:'Sans serif fonts (True) are recommended for readability. 16px is preferred over 12 points (False). High contrast is required, not low (False).' },
+  { id:'q51', number:51, text:'You need conduct various searches. Order the topics to match the search types: Informational, Navigation, Transactional.', type:'order', options:['A specific site','Third-party options to purchase software','Population statistics'], correct:[2,0,1], explanation:'Population statistics → Informational; A specific site → Navigation; Third-party options → Transactional.' },
+  { id:'q52', number:52, text:'For each of the four statements about the presence of bias within information sources, evaluate whether it is True or False.', type:'truefalse', options:['Statements from official, verified accounts on social media are trustworthy and without bias.','The tone of an information source is important as it can lead to an outsized sense of imminence or impact.','The policies and views of publishers and media owners should be reported in a transparent and ethical way.','An eyewitness account of a news event is more likely to be credible than a source who must rely on others to provide information.'], correct:[false,true,true,false], explanation:'Official accounts can still be biased (False). Tone affects perception (True). Transparency is important (True). Eyewitness accounts are not always more credible (False).' },
+  { id:'q53', number:53, text:'You need to maximize your online privacy. For each of the four actions, select Yes if it contributes to online privacy or No if it does not.', type:'yesno', options:['Stay logged into websites.','Delete cookies after using the browser.','Use the same password for multiple accounts.','Use Private Browsing mode to maintain anonymity.'], correct:[false,true,false,false], explanation:'Staying logged in (No) and using the same password (No) reduce privacy. Deleting cookies (Yes) helps. Private Browsing does not provide anonymity (No).' },
+  { id:'q54', number:54, text:'Your team is working virtually on a group project. You want the group and the project to be successful. For each of the four statements about strategies for achieving success in a virtual group, select True or False.', type:'truefalse', options:['Have team members collect information in a shared document.','Increase efficiency by utilizing only asynchronous communication.','Create a team discussion board for project-related conversations.','Have a central file storage location that all team members can access.'], correct:[true,false,true,true], explanation:'Shared documents (True) and discussion boards (True) and central storage (True) are effective. Asynchronous-only (False) misses real-time collaboration benefits.' },
+  { id:'q55', number:55, text:'Internet for facts and information to use for a research project, but your results are not giving you the answers you expected. For each of the three statements about online research, select whether it is Effective or Ineffective.', type:'effectiveineffective', options:['Refine your search terms to better match your topic','Paste the text of the assignment into a search engine','Use Boolean operators with the keywords in your search'], correct:[true,false,true], explanation:'Refining search terms (Effective) and using Boolean operators (Effective) are proven strategies. Pasting the entire assignment text (Ineffective) often returns irrelevant results.' }
+];
 
-    document.getElementById('welcomeSubhead').textContent = `${totalQ} questions · ${totalQ} minutes · Certiport Level 3 style`;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  APP STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    // ============================================================
-    // 3. DOM REFERENCES — FIXED: Added quizArea
-    // ============================================================
-    const DOM = {
-        welcome: document.getElementById('welcomeScreen'),
-        examArea: document.getElementById('examArea'),
-        results: document.getElementById('results'),
-        modeBadge: document.getElementById('modeBadge'),
-        timer: document.getElementById('timerDisplay'),
-        counter: document.getElementById('questionCounter'),
-        answered: document.getElementById('answeredCounter'),
-        progress: document.getElementById('progressFill'),
-        qType: document.getElementById('qType'),
-        qText: document.getElementById('qText'),
-        optionsContainer: document.getElementById('optionsContainer'),
-        explanationBox: document.getElementById('explanationBox'),
-        expTitle: document.getElementById('expTitle'),
-        expText: document.getElementById('expText'),
-        prevBtn: document.getElementById('prevBtn'),
-        nextBtn: document.getElementById('nextBtn'),
-        submitBtn: document.getElementById('submitBtn'),
-        finalScore: document.getElementById('finalScore'),
-        finalDetail: document.getElementById('finalDetail'),
-        reviewContainer: document.getElementById('reviewContainer'),
-        restartBtn: document.getElementById('restartBtn'),
-        startBtn: document.getElementById('startBtn'),
-        modeTraining: document.getElementById('modeTraining'),
-        modeTest: document.getElementById('modeTest'),
-        quizArea: document.getElementById('quizArea'), // ⬅️ FIXED: Added missing element
-    };
+const state = {
+  mode: 'training',
+  currentIndex: 0,
+  selected: [],
+  answers: [],
+  flagged: [],
+  isSubmitted: false,
+  isReview: false,
+  totalQuestions: QUESTIONS.length,
+  orderState: {},
+  timer: 0,
+  timerInterval: null,
+};
 
-    let selectedMode = null;
+// Seed initial default answers to prevent unvisited order questions from breaking
+QUESTIONS.forEach((q, idx) => {
+  if (q.type === 'order') {
+    state.orderState[idx] = q.options.map((_, i) => i);
+    state.answers[idx] = [...state.orderState[idx]];
+  } else {
+    state.answers[idx] = null;
+  }
+  state.flagged[idx] = false;
+});
 
-    // ============================================================
-    // 4. MODE SELECTION
-    // ============================================================
-    document.querySelectorAll('.mode-card').forEach(card => {
-        card.addEventListener('click', () => {
-            document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectedMode = card.dataset.mode;
-            DOM.startBtn.textContent = `🚀 Start ${selectedMode === 'training' ? 'Training' : 'Test'} Mode`;
-            DOM.startBtn.disabled = false;
-        });
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  DOM REFS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const $ = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
+
+const questionArea = $('#questionArea');
+const explanationBox = $('#explanationBox');
+const explanationText = $('#explanationText');
+const prevBtn = $('#prevBtn');
+const nextBtn = $('#nextBtn');
+const submitBtn = $('#submitBtn');
+const resetBtn = $('#resetBtn');
+const flagBtn = $('#flagBtn');
+const progressFill = $('#progressFill');
+const progressLabel = $('#progressLabel');
+const progressPercent = $('#progressPercent');
+const modeTraining = $('#modeTraining');
+const modeTest = $('#modeTest');
+const modeBadge = $('#modeBadge');
+const timerBadge = $('#timerBadge');
+const resultsContainer = $('#resultsContainer');
+const scrollArea = $('#scrollArea');
+const paletteToggle = $('#paletteToggle');
+const questionPalette = $('#questionPalette');
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  RENDER
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function render() {
+  if (state.isSubmitted && state.mode === 'test') {
+    renderResults();
+    return;
+  }
+
+  const q = QUESTIONS[state.currentIndex];
+  const idx = state.currentIndex;
+  const total = state.totalQuestions;
+
+  // progress
+  const pct = ((idx + 1) / total * 100);
+  progressFill.style.width = pct + '%';
+  progressLabel.textContent = `Question ${idx+1} of ${total}`;
+  progressPercent.textContent = Math.round(pct) + '%';
+
+  // question
+  let html = `<div class="question-number">Question ${q.number} of ${total}</div>`;
+  html += `<div class="question-text">${q.text}</div>`;
+
+  if (q.type === 'single' || q.type === 'multi') {
+    html += `<div class="options-container" id="optionsContainer">`;
+    q.options.forEach((opt, oi) => {
+      const selected = state.selected.includes(oi);
+      let cls = 'option-item';
+      if (state.mode === 'training' && state.selected.length > 0) {
+        const isCorrect = q.correct.includes(oi);
+        if (selected && isCorrect) cls += ' correct';
+        else if (selected && !isCorrect) cls += ' wrong';
+        else if (!selected && isCorrect) cls += ' correct';
+      } else if (selected) {
+        cls += ' selected';
+      }
+      const marker = String.fromCharCode(65 + oi);
+      html += `<div class="${cls}" data-optindex="${oi}" data-qidx="${idx}"><div class="marker">${marker}</div><div class="option-text">${opt}</div></div>`;
     });
-
-    DOM.startBtn.addEventListener('click', () => {
-        if (!selectedMode) return;
-        appMode = selectedMode;
-        DOM.welcome.classList.add('hidden');
-        DOM.examArea.classList.remove('hidden');
-        DOM.modeBadge.textContent = appMode === 'training' ? '📖 Training' : '📝 Test';
-        DOM.modeBadge.className = 'mode-badge ' + (appMode === 'training' ? 'training' : 'test');
-        initExam();
+    html += `</div>`;
+  } else if (q.type === 'truefalse') {
+    html += `<div class="options-container" id="optionsContainer">`;
+    q.options.forEach((statement, oi) => {
+      const val = state.selected[oi] !== undefined ? state.selected[oi] : null;
+      let cls = 'option-item tf-item';
+      if (state.mode === 'training' && state.selected.some(v => v !== null && v !== undefined)) {
+        const isCorrect = (val === q.correct[oi]);
+        if (val !== null && isCorrect) cls += ' correct';
+        else if (val !== null && !isCorrect) cls += ' wrong';
+      } else if (val !== null) {
+        cls += ' selected';
+      }
+      const label = val === true ? 'True' : val === false ? 'False' : '—';
+      html += `<div class="${cls}" data-tfindex="${oi}" data-qidx="${idx}" style="justify-content:space-between;"><div class="option-text">${statement}</div><div style="display:flex; gap:12px; align-items:center;"><span style="font-weight:600; color:#3a5a6a;">${label}</span><span style="font-size:13px; color:#8a9aaa;">(click to toggle)</span></div></div>`;
     });
-
-    // ============================================================
-    // 5. RENDER FUNCTIONS
-    // ============================================================
-    function renderQuestion() {
-        const q = QUESTIONS[currentIndex];
-        const typeLabels = {
-            single: '☝ Single Choice',
-            multi: '☑ Multiple Choice (Choose ' + q.answer.length + ')',
-            tf: '✔ True / False'
-        };
-        DOM.qType.textContent = typeLabels[q.type] || 'Question';
-        DOM.qText.textContent = `${currentIndex+1}. ${q.question}`;
-
-        const saved = userAnswers[currentIndex] || [];
-        const isLocked = (appMode === 'training' && questionLocked[currentIndex] === true);
-
-        let html = '';
-        q.options.forEach((opt, idx) => {
-            const checked = saved.includes(idx) ? 'checked' : '';
-            const inputType = (q.type === 'single' || q.type === 'tf') ? 'radio' : 'checkbox';
-            const nameAttr = `q${currentIndex}`;
-            const disabledAttr = isLocked ? 'disabled' : '';
-            let extraClass = '';
-            if (isLocked) {
-                const isCorrect = q.answer.includes(idx);
-                const isUserSelected = saved.includes(idx);
-                if (isUserSelected && !isCorrect) extraClass = 'wrong-answer';
-                else if (isCorrect) extraClass = 'correct-answer';
-                extraClass += ' disabled-opt';
-            }
-            html += `
-                <div class="option-item ${extraClass}" data-idx="${idx}">
-                    <input type="${inputType}" name="${nameAttr}" value="${idx}" ${checked} ${disabledAttr} />
-                    <label>${opt}</label>
-                </div>
-            `;
-        });
-        DOM.optionsContainer.innerHTML = html;
-
-        if (!isLocked) {
-            document.querySelectorAll('.option-item').forEach(div => {
-                const input = div.querySelector('input');
-                div.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'INPUT') input.click();
-                });
-                input.addEventListener('change', (e) => {
-                    if (appMode === 'training') {
-                        handleTrainingSelect(parseInt(e.target.value), q);
-                    } else {
-                        handleTestSelect(parseInt(e.target.value), q, e);
-                    }
-                });
-            });
-        }
-
-        if (appMode === 'training' && isLocked) {
-            const isCorrect = saved.length === q.answer.length && saved.every(v => q.answer.includes(v));
-            DOM.explanationBox.classList.remove('hidden', 'correct-box', 'wrong-box');
-            DOM.explanationBox.classList.add(isCorrect ? 'correct-box' : 'wrong-box');
-            DOM.expTitle.textContent = isCorrect ? '✅ Correct!' : '❌ Incorrect';
-            DOM.expText.textContent = q.explanation;
-        } else {
-            DOM.explanationBox.classList.add('hidden');
-        }
-
-        DOM.prevBtn.disabled = (currentIndex === 0);
-        DOM.nextBtn.textContent = (currentIndex === totalQ - 1) ? 'Finish Review' : 'Next ▶';
-        updateStats();
-    }
-
-    function handleTrainingSelect(selectedIdx, q) {
-        let current = userAnswers[currentIndex] || [];
-
-        if (q.type === 'single' || q.type === 'tf') {
-            if (current.length === 1 && current[0] === selectedIdx) {
-                userAnswers[currentIndex] = [];
-                questionLocked[currentIndex] = false;
-                renderQuestion();
-                updateStats();
-                return;
-            }
-            userAnswers[currentIndex] = [selectedIdx];
-            questionLocked[currentIndex] = true;
-            renderQuestion();
-            updateStats();
-            return;
-        }
-
-        if (current.includes(selectedIdx)) {
-            current = current.filter(v => v !== selectedIdx);
-        } else {
-            current.push(selectedIdx);
-        }
-        userAnswers[currentIndex] = current;
-
-        if (current.length === q.answer.length) {
-            questionLocked[currentIndex] = true;
-        } else {
-            questionLocked[currentIndex] = false;
-        }
-
-        renderQuestion();
-        updateStats();
-    }
-
-    function handleTestSelect(selectedIdx, q, e) {
-        let current = userAnswers[currentIndex] || [];
-        if (q.type === 'single' || q.type === 'tf') {
-            if (e.target.checked) {
-                current = [selectedIdx];
-            } else {
-                current = [];
-            }
-        } else {
-            if (e.target.checked) {
-                if (!current.includes(selectedIdx)) current.push(selectedIdx);
-            } else {
-                current = current.filter(v => v !== selectedIdx);
-            }
-        }
-        userAnswers[currentIndex] = current;
-        document.querySelectorAll('.option-item').forEach(el => {
-            const cb = el.querySelector('input');
-            const idx = parseInt(el.dataset.idx);
-            const ans = userAnswers[currentIndex] || [];
-            if (ans.includes(idx)) {
-                el.classList.add('selected');
-                cb.checked = true;
-            } else {
-                el.classList.remove('selected');
-                cb.checked = false;
-            }
-        });
-        updateStats();
-    }
-
-    // ============================================================
-    // 6. UPDATE STATS — Submit button always enabled
-    // ============================================================
-    function updateStats() {
-        const answered = userAnswers.filter(a => a !== null && a.length > 0).length;
-        DOM.answered.textContent = `${answered} answered`;
-        DOM.counter.textContent = `Question ${currentIndex+1} of ${totalQ}`;
-        const pct = ((currentIndex + 1) / totalQ) * 100;
-        DOM.progress.style.width = `${Math.min(pct, 100)}%`;
-        DOM.submitBtn.disabled = false;
-    }
-
-    // ============================================================
-    // 7. NAVIGATION
-    // ============================================================
-    function goTo(index) {
-        if (index < 0) index = 0;
-        if (index >= totalQ) index = totalQ - 1;
-        currentIndex = index;
-        renderQuestion();
-    }
-
-    DOM.prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
-    DOM.nextBtn.addEventListener('click', () => {
-        if (currentIndex === totalQ - 1) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            alert('You are at the last question. Click "Submit Exam" when ready.');
-        } else {
-            goTo(currentIndex + 1);
-        }
+    html += `</div>`;
+  } else if (q.type === 'yesno') {
+    html += `<div class="options-container" id="optionsContainer">`;
+    q.options.forEach((statement, oi) => {
+      const val = state.selected[oi] !== undefined ? state.selected[oi] : null;
+      let cls = 'option-item yn-item';
+      if (state.mode === 'training' && state.selected.some(v => v !== null && v !== undefined)) {
+        const isCorrect = (val === q.correct[oi]);
+        if (val !== null && isCorrect) cls += ' correct';
+        else if (val !== null && !isCorrect) cls += ' wrong';
+      } else if (val !== null) {
+        cls += ' selected';
+      }
+      const label = val === true ? 'Yes' : val === false ? 'No' : '—';
+      html += `<div class="${cls}" data-ynindex="${oi}" data-qidx="${idx}" style="justify-content:space-between;"><div class="option-text">${statement}</div><div style="display:flex; gap:12px; align-items:center;"><span style="font-weight:600; color:#3a5a6a;">${label}</span><span style="font-size:13px; color:#8a9aaa;">(click to toggle)</span></div></div>`;
     });
-
-    // ============================================================
-    // 8. TIMER
-    // ============================================================
-    function updateTimerDisplay() {
-        const mins = Math.floor(timeLeft / 60);
-        const secs = timeLeft % 60;
-        DOM.timer.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        if (timeLeft <= 60) DOM.timer.classList.add('warning');
-        else DOM.timer.classList.remove('warning');
-    }
-
-    function startTimer() {
-        if (timerInterval) return;
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            updateTimerDisplay();
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                alert('⏰ Time is up! Your exam will be submitted automatically.');
-                submitExam();
-            }
-        }, 1000);
-    }
-
-    // ============================================================
-    // 9. SUBMIT & RESULTS
-    // ============================================================
-    function submitExam() {
-        if (examSubmitted) return;
-        const answered = userAnswers.filter(a => a !== null && a.length > 0).length;
-        if (answered < totalQ && timeLeft > 0) {
-            if (!confirm(`You have answered ${answered} out of ${totalQ} questions.\n\nAre you sure you want to submit your exam?`)) {
-                return;
-            }
-        }
-        examSubmitted = true;
-        clearInterval(timerInterval);
-        timerInterval = null;
-        const navArea = DOM.quizArea.querySelector('.nav-area');
-        if (navArea) navArea.style.display = 'none';
-        DOM.examArea.classList.add('hidden');
-        DOM.results.classList.remove('hidden');
-        showResults();
-    }
-
-    DOM.submitBtn.addEventListener('click', submitExam);
-
-    function showResults() {
-        let correct = 0;
-        const details = [];
-        QUESTIONS.forEach((q, idx) => {
-            const userAns = userAnswers[idx] || [];
-            const correctAns = q.answer;
-            const isCorrect = userAns.length === correctAns.length && userAns.every(v => correctAns.includes(v));
-            if (isCorrect) correct++;
-            const userText = userAns.map(i => q.options[i]).join(', ') || '(none)';
-            const correctText = correctAns.map(i => q.options[i]).join(', ');
-            details.push({
-                q: q.question,
-                userText,
-                correctText,
-                isCorrect,
-                explanation: q.explanation
-            });
-        });
-
-        const pct = Math.round((correct / totalQ) * 100);
-        DOM.finalScore.textContent = `${pct}%`;
-        DOM.finalDetail.textContent = `${correct} / ${totalQ} correct`;
-
-        let reviewHtml = '';
-        details.forEach((d, i) => {
-            const cls = d.isCorrect ? 'correct' : 'wrong';
-            const mark = d.isCorrect ? '✅' : '❌';
-            reviewHtml += `
-                <div class="review-item ${cls}">
-                    <div class="q">${mark} Q${i+1}: ${d.q}</div>
-                    <div class="your-answer">Your answer: ${d.userText}</div>
-                    <div class="${d.isCorrect ? 'correct-answer' : 'wrong-answer'}">
-                        ${d.isCorrect ? '✔ Correct!' : `✖ Correct answer: ${d.correctText}`}
-                    </div>
-                    <div class="exp">💡 ${d.explanation}</div>
-                </div>
-            `;
-        });
-        DOM.reviewContainer.innerHTML = reviewHtml;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // ============================================================
-    // 10. RESTART
-    // ============================================================
-    DOM.restartBtn.addEventListener('click', () => {
-        location.reload();
+    html += `</div>`;
+  } else if (q.type === 'effectiveineffective') {
+    html += `<div class="options-container" id="optionsContainer">`;
+    q.options.forEach((statement, oi) => {
+      const val = state.selected[oi] !== undefined ? state.selected[oi] : null;
+      let cls = 'option-item eff-item';
+      if (state.mode === 'training' && state.selected.some(v => v !== null && v !== undefined)) {
+        const isCorrect = (val === q.correct[oi]);
+        if (val !== null && isCorrect) cls += ' correct';
+        else if (val !== null && !isCorrect) cls += ' wrong';
+      } else if (val !== null) {
+        cls += ' selected';
+      }
+      const label = val === true ? 'Effective' : val === false ? 'Ineffective' : '—';
+      html += `<div class="${cls}" data-effindex="${oi}" data-qidx="${idx}" style="justify-content:space-between;"><div class="option-text">${statement}</div><div style="display:flex; gap:12px; align-items:center;"><span style="font-weight:600; color:#3a5a6a;">${label}</span><span style="font-size:13px; color:#8a9aaa;">(click to toggle)</span></div></div>`;
     });
+    html += `</div>`;
+  } else if (q.type === 'order') {
+    const order = state.orderState[idx] || q.options.map((_, i) => i);
+    html += `<div class="order-list" id="orderList">`;
+    order.forEach((optIdx, pos) => {
+      html += `<div class="order-item" data-optidx="${optIdx}" data-pos="${pos}" draggable="true"><span class="drag-handle">⠿</span><span class="order-num">${pos+1}.</span><span class="option-text">${q.options[optIdx]}</span></div>`;
+    });
+    html += `</div>`;
+    if (state.mode === 'training' && state.answers[idx] !== null) {
+      html += `<div style="margin-top:10px; font-size:14px; color:#1a9e5a; font-weight:500;">✓ Order locked for review</div>`;
+    }
+  }
 
-    // ============================================================
-    // 11. INIT
-    // ============================================================
-    function initExam() {
-        QUESTIONS.forEach((q, i) => q.id = i + 1);
-        renderQuestion();
-        updateTimerDisplay();
-        startTimer();
-        updateStats();
+  questionArea.innerHTML = html;
+
+  // explanation
+  const hasAnsweredTraining = (state.mode === 'training' && (
+    ((q.type === 'single' || q.type === 'multi') && state.selected.length > 0) ||
+    ((q.type === 'truefalse' || q.type === 'yesno' || q.type === 'effectiveineffective') && state.selected.some(v => v !== null && v !== undefined)) ||
+    (q.type === 'order')
+  ));
+
+  if (hasAnsweredTraining) {
+    let exp = q.explanation || 'No explanation provided.';
+    let correctStr = '';
+    if (q.type === 'single') correctStr = `Correct: ${String.fromCharCode(65 + q.correct[0])}`;
+    else if (q.type === 'multi') correctStr = `Correct: ${q.correct.map(c => String.fromCharCode(65 + c)).join(', ')}`;
+    else if (q.type === 'truefalse') correctStr = `Correct: ${q.correct.map(c => c ? 'True' : 'False').join(', ')}`;
+    else if (q.type === 'yesno') correctStr = `Correct: ${q.correct.map(c => c ? 'Yes' : 'No').join(', ')}`;
+    else if (q.type === 'effectiveineffective') correctStr = `Correct: ${q.correct.map(c => c ? 'Effective' : 'Ineffective').join(', ')}`;
+    else if (q.type === 'order') correctStr = `Correct order: ${q.correct.map(c => q.options[c]).join(' → ')}`;
+    explanationText.innerHTML = `<span class="exp-correct">${correctStr}</span><br><br>${exp}`;
+    explanationBox.classList.add('visible');
+  } else {
+    explanationBox.classList.remove('visible');
+  }
+
+  // nav
+  prevBtn.disabled = state.currentIndex === 0 || state.isSubmitted;
+  if (state.mode === 'test' && state.currentIndex === state.totalQuestions - 1 && !state.isSubmitted) {
+    submitBtn.classList.remove('hidden');
+    nextBtn.classList.add('hidden');
+  } else {
+    submitBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+  }
+
+  // flag button
+  flagBtn.textContent = state.flagged[idx] ? '★ Flagged' : '🚩 Flag';
+  flagBtn.classList.toggle('flagged', state.flagged[idx]);
+
+  resetBtn.textContent = state.isSubmitted ? '⟳ Retake' : '⟳ Reset';
+
+  // palette
+  renderPalette();
+  attachEvents();
+}
+
+function renderPalette() {
+  const total = state.totalQuestions;
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    const q = QUESTIONS[i];
+    let cls = 'palette-btn';
+    if (i === state.currentIndex) cls += ' active';
+    if (state.flagged[i]) cls += ' flagged';
+    const ans = state.answers[i];
+    let answered = false;
+    if (q.type === 'single' || q.type === 'multi') {
+      answered = (ans && ans.length > 0);
+    } else if (q.type === 'truefalse' || q.type === 'yesno' || q.type === 'effectiveineffective') {
+      answered = (ans && ans.some(v => v !== null && v !== undefined));
+    } else if (q.type === 'order') {
+      answered = true; // Always has a default arrangement order
+    }
+    if (answered) cls += ' answered';
+    html += `<button class="${cls}" data-palette="${i}">${i+1}</button>`;
+  }
+  questionPalette.innerHTML = html;
+  
+  document.querySelectorAll('.palette-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const idx = parseInt(this.dataset.palette);
+      if (state.mode === 'test' && state.isSubmitted) return;
+      state.currentIndex = idx;
+      loadQuestion(idx);
+    });
+  });
+}
+
+function attachEvents() {
+  const q = QUESTIONS[state.currentIndex];
+  const idx = state.currentIndex;
+
+  if (q.type === 'single' || q.type === 'multi') {
+    document.querySelectorAll('.option-item:not(.disabled)').forEach(el => {
+      el.addEventListener('click', function() {
+        if (state.isSubmitted || (state.mode === 'test' && state.isReview)) return;
+        const optIdx = parseInt(this.dataset.optindex);
+        handleOptionClick(idx, optIdx, q.type);
+      });
+    });
+  }
+  if (q.type === 'truefalse') {
+    document.querySelectorAll('.tf-item:not(.disabled)').forEach(el => {
+      el.addEventListener('click', function() {
+        if (state.isSubmitted || (state.mode === 'test' && state.isReview)) return;
+        const tfIdx = parseInt(this.dataset.tfindex);
+        handleTFClick(idx, tfIdx);
+      });
+    });
+  }
+  if (q.type === 'yesno') {
+    document.querySelectorAll('.yn-item:not(.disabled)').forEach(el => {
+      el.addEventListener('click', function() {
+        if (state.isSubmitted || (state.mode === 'test' && state.isReview)) return;
+        const ynIdx = parseInt(this.dataset.ynindex);
+        handleYNClick(idx, ynIdx);
+      });
+    });
+  }
+  if (q.type === 'effectiveineffective') {
+    document.querySelectorAll('.eff-item:not(.disabled)').forEach(el => {
+      el.addEventListener('click', function() {
+        if (state.isSubmitted || (state.mode === 'test' && state.isReview)) return;
+        const effIdx = parseInt(this.dataset.effindex);
+        handleEffClick(idx, effIdx);
+      });
+    });
+  }
+  if (q.type === 'order' && !(state.mode === 'test' && state.isSubmitted)) {
+    setupOrderDrag(idx);
+  }
+}
+
+function handleOptionClick(qIdx, optIdx, type) {
+  if (state.mode === 'test' && state.isSubmitted) return;
+  if (type === 'single') {
+    state.selected = [optIdx];
+  } else {
+    const pos = state.selected.indexOf(optIdx);
+    if (pos === -1) state.selected.push(optIdx);
+    else state.selected.splice(pos, 1);
+    state.selected.sort((a,b) => a-b);
+  }
+  state.answers[qIdx] = [...state.selected];
+  render();
+}
+
+function handleTFClick(qIdx, tfIdx) {
+  if (state.mode === 'test' && state.isSubmitted) return;
+  if (state.selected[tfIdx] === undefined || state.selected[tfIdx] === null) state.selected[tfIdx] = true;
+  else if (state.selected[tfIdx] === true) state.selected[tfIdx] = false;
+  else state.selected[tfIdx] = null;
+  state.answers[qIdx] = [...state.selected];
+  render();
+}
+
+function handleYNClick(qIdx, ynIdx) {
+  if (state.mode === 'test' && state.isSubmitted) return;
+  if (state.selected[ynIdx] === undefined || state.selected[ynIdx] === null) state.selected[ynIdx] = true;
+  else if (state.selected[ynIdx] === true) state.selected[ynIdx] = false;
+  else state.selected[ynIdx] = null;
+  state.answers[qIdx] = [...state.selected];
+  render();
+}
+
+function handleEffClick(qIdx, effIdx) {
+  if (state.mode === 'test' && state.isSubmitted) return;
+  if (state.selected[effIdx] === undefined || state.selected[effIdx] === null) state.selected[effIdx] = true;
+  else if (state.selected[effIdx] === true) state.selected[effIdx] = false;
+  else state.selected[effIdx] = null;
+  state.answers[qIdx] = [...state.selected];
+  render();
+}
+
+function setupOrderDrag(qIdx) {
+  const list = document.getElementById('orderList');
+  if (!list) return;
+  const items = list.querySelectorAll('.order-item');
+  let dragItem = null;
+  items.forEach(item => {
+    item.addEventListener('dragstart', function(e) {
+      if (state.mode === 'test' && state.isSubmitted) { e.preventDefault(); return; }
+      dragItem = this;
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', this.dataset.pos);
+    });
+    item.addEventListener('dragend', function(e) {
+      this.classList.remove('dragging');
+      document.querySelectorAll('.order-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    item.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      if (state.mode === 'test' && state.isSubmitted) return;
+      document.querySelectorAll('.order-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+      this.classList.add('drag-over');
+    });
+    item.addEventListener('dragleave', function(e) { this.classList.remove('drag-over'); });
+    item.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      if (state.mode === 'test' && state.isSubmitted) return;
+      if (!dragItem || dragItem === this) return;
+      const fromPos = parseInt(dragItem.dataset.pos);
+      const toPos = parseInt(this.dataset.pos);
+      const order = state.orderState[qIdx] || QUESTIONS[qIdx].options.map((_,i) => i);
+      const [removed] = order.splice(fromPos, 1);
+      order.splice(toPos, 0, removed);
+      state.orderState[qIdx] = order;
+      state.answers[qIdx] = [...order];
+      render();
+    });
+  });
+
+  // touch support
+  let touchStartIndex = null, touchItem = null;
+  items.forEach(item => {
+    item.addEventListener('touchstart', function(e) {
+      if (state.mode === 'test' && state.isSubmitted) return;
+      touchStartIndex = parseInt(this.dataset.pos);
+      touchItem = this;
+      this.classList.add('dragging');
+    }, { passive: true });
+    item.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      if (!touchItem) return;
+      const touch = e.touches[0];
+      const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (dropTarget && dropTarget.closest('.order-item')) {
+        const target = dropTarget.closest('.order-item');
+        document.querySelectorAll('.order-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+        target.classList.add('drag-over');
+      }
+    }, { passive: false });
+    item.addEventListener('touchend', function(e) {
+      if (!touchItem) return;
+      const target = document.querySelector('.order-item.drag-over');
+      if (target && target !== touchItem) {
+        const fromPos = touchStartIndex;
+        const toPos = parseInt(target.dataset.pos);
+        const order = state.orderState[qIdx] || QUESTIONS[qIdx].options.map((_,i) => i);
+        const [removed] = order.splice(fromPos, 1);
+        order.splice(toPos, 0, removed);
+        state.orderState[qIdx] = order;
+        state.answers[qIdx] = [...order];
+        render();
+      }
+      touchItem.classList.remove('dragging');
+      document.querySelectorAll('.order-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+      touchItem = null;
+      touchStartIndex = null;
+    }, { passive: true });
+  });
+}
+
+function goToPrev() {
+  if (state.currentIndex > 0) { state.currentIndex--; loadQuestion(state.currentIndex); }
+}
+function goToNext() {
+  if (state.currentIndex < state.totalQuestions - 1) { state.currentIndex++; loadQuestion(state.currentIndex); }
+}
+
+function loadQuestion(idx) {
+  const q = QUESTIONS[idx];
+  const saved = state.answers[idx];
+  if (saved !== null && saved !== undefined) {
+    if (q.type === 'single' || q.type === 'multi' || q.type === 'truefalse' || q.type === 'yesno' || q.type === 'effectiveineffective') {
+      state.selected = [...saved];
+    } else if (q.type === 'order') {
+      state.orderState[idx] = [...saved];
+      state.selected = [];
+    }
+  } else {
+    if (q.type === 'single' || q.type === 'multi') state.selected = [];
+    else if (q.type === 'truefalse' || q.type === 'yesno' || q.type === 'effectiveineffective') state.selected = new Array(q.options.length).fill(null);
+    else if (q.type === 'order') {
+      state.orderState[idx] = q.options.map((_,i) => i);
+      state.selected = [];
+    }
+  }
+  render();
+  scrollArea.scrollTop = 0;
+}
+
+function toggleFlag() {
+  const idx = state.currentIndex;
+  state.flagged[idx] = !state.flagged[idx];
+  render();
+}
+
+function startTimer() {
+  if (state.timerInterval) return;
+  state.timer = 0;
+  state.timerInterval = setInterval(() => {
+    state.timer++;
+    const mins = Math.floor(state.timer / 60);
+    const secs = state.timer % 60;
+    timerBadge.textContent = `⏱ ${mins}:${secs.toString().padStart(2, '0')}`;
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+}
+
+function submitTest() {
+  let allAnswered = true;
+  QUESTIONS.forEach((qq, i) => {
+    const ans = state.answers[i];
+    if (qq.type === 'single' || qq.type === 'multi') {
+      if (!ans || ans.length === 0) allAnswered = false;
+    } else if (qq.type === 'truefalse' || qq.type === 'yesno' || qq.type === 'effectiveineffective') {
+      if (!ans || ans.length === 0 || ans.every(v => v === null || v === undefined)) allAnswered = false;
+    }
+  });
+
+  if (!allAnswered && !confirm('You have unanswered questions. Submit anyway?')) return;
+  state.isSubmitted = true;
+  stopTimer();
+  render();
+}
+
+function renderResults() {
+  const total = QUESTIONS.length;
+  let correctCount = 0;
+  let results = [];
+
+  QUESTIONS.forEach((q, i) => {
+    const userAns = state.answers[i];
+    let isCorrect = false;
+    let userDisplay = '';
+    let correctDisplay = '';
+
+    if (q.type === 'single') {
+      if (userAns && userAns.length === 1) { 
+        isCorrect = userAns[0] === q.correct[0]; 
+        userDisplay = String.fromCharCode(65 + userAns[0]); 
+      } else userDisplay = 'Not answered';
+      correctDisplay = String.fromCharCode(65 + q.correct[0]);
+    } else if (q.type === 'multi') {
+      if (userAns && userAns.length > 0) {
+        const sorted = [...userAns].sort();
+        const correctSorted = [...q.correct].sort();
+        isCorrect = sorted.length === correctSorted.length && sorted.every((v,idx) => v === correctSorted[idx]);
+        userDisplay = userAns.map(c => String.fromCharCode(65 + c)).join(', ');
+      } else userDisplay = 'Not answered';
+      correctDisplay = q.correct.map(c => String.fromCharCode(65 + c)).join(', ');
+    } else if (q.type === 'truefalse') {
+      if (userAns) {
+        isCorrect = userAns.every((v, idx) => v === q.correct[idx]);
+        userDisplay = userAns.map(v => v === true ? 'True' : v === false ? 'False' : '—').join(', ');
+      } else userDisplay = 'Not answered';
+      correctDisplay = q.correct.map(v => v ? 'True' : 'False').join(', ');
+    } else if (q.type === 'yesno') {
+      if (userAns) {
+        isCorrect = userAns.every((v, idx) => v === q.correct[idx]);
+        userDisplay = userAns.map(v => v === true ? 'Yes' : v === false ? 'No' : '—').join(', ');
+      } else userDisplay = 'Not answered';
+      correctDisplay = q.correct.map(v => v ? 'Yes' : 'No').join(', ');
+    } else if (q.type === 'effectiveineffective') {
+      if (userAns) {
+        isCorrect = userAns.every((v, idx) => v === q.correct[idx]);
+        userDisplay = userAns.map(v => v === true ? 'Effective' : v === false ? 'Ineffective' : '—').join(', ');
+      } else userDisplay = 'Not answered';
+      correctDisplay = q.correct.map(v => v ? 'Effective' : 'Ineffective').join(', ');
+    } else if (q.type === 'order') {
+      if (userAns) {
+        isCorrect = userAns.every((val, idx) => val === q.correct[idx]);
+        userDisplay = userAns.map(idx => q.options[idx]).join(' → ');
+      } else userDisplay = 'Not answered';
+      correctDisplay = q.correct.map(idx => q.options[idx]).join(' → ');
     }
 
-    // Pre-select training mode by default
-    DOM.modeTraining.classList.add('selected');
-    selectedMode = 'training';
-    DOM.startBtn.textContent = '🚀 Start Training Mode';
-    DOM.startBtn.disabled = false;
+    if (isCorrect) correctCount++;
+    results.push({ question: q.text, userDisplay, correctDisplay, isCorrect, number: q.number });
+  });
+
+  const score = Math.round((correctCount / total) * 100);
+  const passed = score >= 70;
+
+  let html = `
+    <div class="results-summary">
+      <div class="score">${score}%</div>
+      <div class="score-label">${correctCount} of ${total} correct</div>
+      <div class="pass-fail ${passed ? 'pass' : 'fail'}">${passed ? '✅ PASS' : '❌ FAIL'}</div>
+      <div style="margin-top:8px; font-size:14px; color:#5a6a7a;">⏱ Time: ${timerBadge.textContent.replace('⏱ ','')}</div>
+    </div>
+    <div style="margin-bottom:12px; font-weight:600; color:#1a3a5c;">Review Answers</div>
+  `;
+
+  results.forEach((r, i) => {
+    const cls = r.isCorrect ? 'correct-item' : 'wrong-item';
+    const icon = r.isCorrect ? '✅' : '❌';
+    html += `
+      <div class="result-item ${cls}">
+        <div class="r-icon">${icon}</div>
+        <div class="r-q"><strong>Q${r.number}:</strong> ${r.question.substring(0, 80)}${r.question.length > 80 ? '…' : ''}</div>
+        <div class="r-answer">Your: ${r.userDisplay}</div>
+        <div class="r-answer" style="color:#1a9e5a;">Correct: ${r.correctDisplay}</div>
+      </div>
+    `;
+  });
+
+  html += `
+    <div class="review-btn-wrap">
+      <button class="nav-btn primary" id="retakeBtn">⟳ Retake Test</button>
+      <button class="nav-btn" id="backToQuestionsBtn" style="margin-left:8px;">⬅ Back to Questions</button>
+    </div>
+  `;
+
+  resultsContainer.innerHTML = html;
+  resultsContainer.classList.remove('hidden');
+  questionArea.classList.add('hidden');
+  explanationBox.classList.remove('visible');
+  document.querySelector('.progress-section').classList.add('hidden');
+  document.querySelector('.nav-section').classList.add('hidden');
+  submitBtn.classList.add('hidden');
+  nextBtn.classList.add('hidden');
+  modeBadge.textContent = '✅ Results';
+
+  document.getElementById('retakeBtn')?.addEventListener('click', resetAll);
+  document.getElementById('backToQuestionsBtn')?.addEventListener('click', function() {
+    state.isSubmitted = false;
+    state.isReview = false;
+    resultsContainer.classList.add('hidden');
+    questionArea.classList.remove('hidden');
+    document.querySelector('.progress-section').classList.remove('hidden');
+    document.querySelector('.nav-section').classList.remove('hidden');
+    modeBadge.textContent = state.mode === 'training' ? 'Training' : 'Test';
+    render();
+  });
+}
+
+function resetAll() {
+  if (state.mode === 'test' && state.isSubmitted) {
+    if (!confirm('Reset all answers and start over?')) return;
+  }
+  stopTimer();
+  state.currentIndex = 0;
+  state.selected = [];
+  state.answers = [];
+  state.isSubmitted = false;
+  state.isReview = false;
+  state.flagged = state.flagged.map(() => false);
+  state.orderState = {};
+  state.timer = 0;
+  timerBadge.textContent = '⏱ 0:00';
+  QUESTIONS.forEach((q, i) => {
+    if (q.type === 'order') {
+      state.orderState[i] = q.options.map((_, idx) => idx);
+      state.answers[i] = [...state.orderState[i]];
+    } else {
+      state.answers[i] = null;
+    }
+  });
+  if (state.mode === 'test') startTimer();
+  resultsContainer.classList.add('hidden');
+  questionArea.classList.remove('hidden');
+  document.querySelector('.progress-section').classList.remove('hidden');
+  document.querySelector('.nav-section').classList.remove('hidden');
+  submitBtn.classList.add('hidden');
+  nextBtn.classList.remove('hidden');
+  modeBadge.textContent = state.mode === 'training' ? 'Training' : 'Test';
+  loadQuestion(0);
+}
+
+function switchMode(mode) {
+  if (state.mode === mode) return;
+  if (state.mode === 'test' && !state.isSubmitted && state.answers.some(a => a !== null)) {
+    if (!confirm('Switching modes will discard your current configuration. Continue?')) return;
+  }
+  stopTimer();
+  state.mode = mode;
+  state.isSubmitted = false;
+  state.isReview = false;
+  state.selected = [];
+  state.answers = [];
+  state.flagged = state.flagged.map(() => false);
+  state.orderState = {};
+  state.timer = 0;
+  timerBadge.textContent = '⏱ 0:00';
+  QUESTIONS.forEach((q, i) => {
+    if (q.type === 'order') {
+      state.orderState[i] = q.options.map((_, idx) => idx);
+      state.answers[i] = [...state.orderState[i]];
+    } else {
+      state.answers[i] = null;
+    }
+  });
+  state.currentIndex = 0;
+  resultsContainer.classList.add('hidden');
+  questionArea.classList.remove('hidden');
+  document.querySelector('.progress-section').classList.remove('hidden');
+  document.querySelector('.nav-section').classList.remove('hidden');
+  submitBtn.classList.add('hidden');
+  nextBtn.classList.remove('hidden');
+  modeTraining.classList.toggle('active', mode === 'training');
+  modeTest.classList.toggle('active', mode === 'test');
+  modeBadge.textContent = mode === 'training' ? 'Training' : 'Test';
+  
+  if (mode === 'test') startTimer();
+  loadQuestion(0);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  modeTraining.addEventListener('click', () => switchMode('training'));
+  modeTest.addEventListener('click', () => switchMode('test'));
+  prevBtn.addEventListener('click', goToPrev);
+  nextBtn.addEventListener('click', goToNext);
+  submitBtn.addEventListener('click', submitTest);
+  resetBtn.addEventListener('click', resetAll);
+  flagBtn.addEventListener('click', toggleFlag);
+  paletteToggle.addEventListener('click', function() {
+    questionPalette.classList.toggle('open');
+    this.textContent = questionPalette.classList.contains('open') ? '📋 Close' : '📋 Navigator';
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (!nextBtn.disabled && !nextBtn.classList.contains('hidden')) goToNext();
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (!prevBtn.disabled) goToPrev();
+    }
+    if (e.key === 'f' || e.key === 'F') { toggleFlag(); }
+  });
+
+  loadQuestion(0);
+});
 </script>
 </body>
 </html>
